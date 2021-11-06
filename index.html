@@ -9,29 +9,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- <link rel="stylesheet" href="resources/stylesheet.min.css">
-         <script src="resources/ga.js" async></script> -->
+    <link rel="stylesheet" href="assets/static/out.css">
+    <script defer type="text/javascript" src="assets/static/out.js"></script>
   </head>
 
   <body>
+    <div class="container mx-auto px-4">
+      <div class="flex">
+        <div>One</div>
+        <div>Two</div>
+      </div>
 
-    <header>
-      <h1 id="site-title"><a href="./" id="home-link">Covid Stats for Greece</a></h1>
-    </header>
-
-    <div>Content goes here</div>
-
-    <footer class="clear">
-      <ul class="footer-left">
-        <li><a href="./">Home</a></li>
-        <li><a href="privacy/">Privacy</a></li>
-      </ul>
-
-      <ul class="footer-right">
-        <li>Created by <a href="https://github.com/kkentzo">kkentzo</a></li>
-      </ul>
-    </footer>
-
-    <script src="resources/javascript.min.js"></script>
+      <div class="w-1/3">
+        <canvas id="chart-cases"></canvas>
+      </div>
+    </div>
   </body>
 </html>
