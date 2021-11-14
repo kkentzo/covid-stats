@@ -2069,18 +2069,18 @@
     return _pointInLine(d, e, t);
   }
   var intlCache = new Map();
-  function getNumberFormat(locale, options) {
+  function getNumberFormat(locale2, options) {
     options = options || {};
-    const cacheKey = locale + JSON.stringify(options);
+    const cacheKey = locale2 + JSON.stringify(options);
     let formatter = intlCache.get(cacheKey);
     if (!formatter) {
-      formatter = new Intl.NumberFormat(locale, options);
+      formatter = new Intl.NumberFormat(locale2, options);
       intlCache.set(cacheKey, formatter);
     }
     return formatter;
   }
-  function formatNumber(num, locale, options) {
-    return getNumberFormat(locale, options).format(num);
+  function formatNumber(num, locale2, options) {
+    return getNumberFormat(locale2, options).format(num);
   }
   var getRightToLeftAdapter = function(rectX, width) {
     return {
@@ -4801,10 +4801,10 @@
     formats() {
       return abstract();
     }
-    parse(value, format) {
+    parse(value, format2) {
       return abstract();
     }
-    format(timestamp, format) {
+    format(timestamp, format2) {
       return abstract();
     }
     add(timestamp, amount, unit) {
@@ -5613,7 +5613,7 @@
       if (tickValue === 0) {
         return "0";
       }
-      const locale = this.chart.options.locale;
+      const locale2 = this.chart.options.locale;
       let notation;
       let delta = tickValue;
       if (ticks.length > 1) {
@@ -5627,7 +5627,7 @@
       const numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
       const options = { notation, minimumFractionDigits: numDecimal, maximumFractionDigits: numDecimal };
       Object.assign(options, this.options.ticks.format);
-      return formatNumber(tickValue, locale, options);
+      return formatNumber(tickValue, locale2, options);
     },
     logarithmic(tickValue, index, ticks) {
       if (tickValue === 0) {
@@ -12454,7 +12454,7 @@
       }
       return adapter.format(value, timeOpts.displayFormats.datetime);
     }
-    _tickFormatFunction(time, index, ticks, format) {
+    _tickFormatFunction(time, index, ticks, format2) {
       const options = this.options;
       const formats = options.time.displayFormats;
       const unit = this._unit;
@@ -12463,7 +12463,7 @@
       const majorFormat = majorUnit && formats[majorUnit];
       const tick = ticks[index];
       const major = majorUnit && majorFormat && tick && tick.major;
-      const label = this._adapter.format(time, format || (major ? majorFormat : minorFormat));
+      const label = this._adapter.format(time, format2 || (major ? majorFormat : minorFormat));
       const formatter = options.ticks.callback;
       return formatter ? callback(formatter, [label, index, ticks], this) : label;
     }
@@ -12502,8 +12502,8 @@
     _getLabelCapacity(exampleTime) {
       const timeOpts = this.options.time;
       const displayFormats = timeOpts.displayFormats;
-      const format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
-      const exampleLabel = this._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(this, [exampleTime], this._majorUnit), format);
+      const format2 = displayFormats[timeOpts.unit] || displayFormats.millisecond;
+      const exampleLabel = this._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(this, [exampleTime], this._majorUnit), format2);
       const size = this._getLabelSize(exampleLabel);
       const capacity = Math.floor(this.isHorizontal() ? this.width / size.w : this.height / size.h) - 1;
       return capacity > 0 ? capacity : 1;
@@ -12661,43 +12661,3773 @@
     scales
   ];
 
+  // node_modules/date-fns/esm/_lib/toInteger/index.js
+  function toInteger(dirtyNumber) {
+    if (dirtyNumber === null || dirtyNumber === true || dirtyNumber === false) {
+      return NaN;
+    }
+    var number = Number(dirtyNumber);
+    if (isNaN(number)) {
+      return number;
+    }
+    return number < 0 ? Math.ceil(number) : Math.floor(number);
+  }
+
+  // node_modules/date-fns/esm/_lib/requiredArgs/index.js
+  function requiredArgs(required, args) {
+    if (args.length < required) {
+      throw new TypeError(required + " argument" + (required > 1 ? "s" : "") + " required, but only " + args.length + " present");
+    }
+  }
+
+  // node_modules/date-fns/esm/toDate/index.js
+  function toDate(argument) {
+    requiredArgs(1, arguments);
+    var argStr = Object.prototype.toString.call(argument);
+    if (argument instanceof Date || typeof argument === "object" && argStr === "[object Date]") {
+      return new Date(argument.getTime());
+    } else if (typeof argument === "number" || argStr === "[object Number]") {
+      return new Date(argument);
+    } else {
+      if ((typeof argument === "string" || argStr === "[object String]") && typeof console !== "undefined") {
+        console.warn("Starting with v2.0.0-beta.1 date-fns doesn't accept strings as date arguments. Please use `parseISO` to parse strings. See: https://git.io/fjule");
+        console.warn(new Error().stack);
+      }
+      return new Date(NaN);
+    }
+  }
+
+  // node_modules/date-fns/esm/addDays/index.js
+  function addDays(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var amount = toInteger(dirtyAmount);
+    if (isNaN(amount)) {
+      return new Date(NaN);
+    }
+    if (!amount) {
+      return date;
+    }
+    date.setDate(date.getDate() + amount);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/addMonths/index.js
+  function addMonths(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var amount = toInteger(dirtyAmount);
+    if (isNaN(amount)) {
+      return new Date(NaN);
+    }
+    if (!amount) {
+      return date;
+    }
+    var dayOfMonth = date.getDate();
+    var endOfDesiredMonth = new Date(date.getTime());
+    endOfDesiredMonth.setMonth(date.getMonth() + amount + 1, 0);
+    var daysInMonth = endOfDesiredMonth.getDate();
+    if (dayOfMonth >= daysInMonth) {
+      return endOfDesiredMonth;
+    } else {
+      date.setFullYear(endOfDesiredMonth.getFullYear(), endOfDesiredMonth.getMonth(), dayOfMonth);
+      return date;
+    }
+  }
+
+  // node_modules/date-fns/esm/addMilliseconds/index.js
+  function addMilliseconds(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var timestamp = toDate(dirtyDate).getTime();
+    var amount = toInteger(dirtyAmount);
+    return new Date(timestamp + amount);
+  }
+
+  // node_modules/date-fns/esm/addHours/index.js
+  var MILLISECONDS_IN_HOUR = 36e5;
+  function addHours(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMilliseconds(dirtyDate, amount * MILLISECONDS_IN_HOUR);
+  }
+
+  // node_modules/date-fns/esm/startOfWeek/index.js
+  function startOfWeek(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeWeekStartsOn = locale2 && locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    var date = toDate(dirtyDate);
+    var day = date.getDay();
+    var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+    date.setDate(date.getDate() - diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/getTimezoneOffsetInMilliseconds/index.js
+  function getTimezoneOffsetInMilliseconds(date) {
+    var utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
+    utcDate.setUTCFullYear(date.getFullYear());
+    return date.getTime() - utcDate.getTime();
+  }
+
+  // node_modules/date-fns/esm/startOfDay/index.js
+  function startOfDay(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/differenceInCalendarDays/index.js
+  var MILLISECONDS_IN_DAY = 864e5;
+  function differenceInCalendarDays(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var startOfDayLeft = startOfDay(dirtyDateLeft);
+    var startOfDayRight = startOfDay(dirtyDateRight);
+    var timestampLeft = startOfDayLeft.getTime() - getTimezoneOffsetInMilliseconds(startOfDayLeft);
+    var timestampRight = startOfDayRight.getTime() - getTimezoneOffsetInMilliseconds(startOfDayRight);
+    return Math.round((timestampLeft - timestampRight) / MILLISECONDS_IN_DAY);
+  }
+
+  // node_modules/date-fns/esm/addMinutes/index.js
+  var MILLISECONDS_IN_MINUTE = 6e4;
+  function addMinutes(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMilliseconds(dirtyDate, amount * MILLISECONDS_IN_MINUTE);
+  }
+
+  // node_modules/date-fns/esm/addQuarters/index.js
+  function addQuarters(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    var months = amount * 3;
+    return addMonths(dirtyDate, months);
+  }
+
+  // node_modules/date-fns/esm/addSeconds/index.js
+  function addSeconds(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMilliseconds(dirtyDate, amount * 1e3);
+  }
+
+  // node_modules/date-fns/esm/addWeeks/index.js
+  function addWeeks(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    var days = amount * 7;
+    return addDays(dirtyDate, days);
+  }
+
+  // node_modules/date-fns/esm/addYears/index.js
+  function addYears(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMonths(dirtyDate, amount * 12);
+  }
+
+  // node_modules/date-fns/esm/compareAsc/index.js
+  function compareAsc(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    var diff = dateLeft.getTime() - dateRight.getTime();
+    if (diff < 0) {
+      return -1;
+    } else if (diff > 0) {
+      return 1;
+    } else {
+      return diff;
+    }
+  }
+
+  // node_modules/date-fns/esm/constants/index.js
+  var maxTime = Math.pow(10, 8) * 24 * 60 * 60 * 1e3;
+  var millisecondsInMinute = 6e4;
+  var millisecondsInHour = 36e5;
+  var minTime = -maxTime;
+
+  // node_modules/date-fns/esm/isDate/index.js
+  function isDate(value) {
+    requiredArgs(1, arguments);
+    return value instanceof Date || typeof value === "object" && Object.prototype.toString.call(value) === "[object Date]";
+  }
+
+  // node_modules/date-fns/esm/isValid/index.js
+  function isValid(dirtyDate) {
+    requiredArgs(1, arguments);
+    if (!isDate(dirtyDate) && typeof dirtyDate !== "number") {
+      return false;
+    }
+    var date = toDate(dirtyDate);
+    return !isNaN(Number(date));
+  }
+
+  // node_modules/date-fns/esm/differenceInCalendarMonths/index.js
+  function differenceInCalendarMonths(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    var yearDiff = dateLeft.getFullYear() - dateRight.getFullYear();
+    var monthDiff = dateLeft.getMonth() - dateRight.getMonth();
+    return yearDiff * 12 + monthDiff;
+  }
+
+  // node_modules/date-fns/esm/differenceInCalendarYears/index.js
+  function differenceInCalendarYears(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    return dateLeft.getFullYear() - dateRight.getFullYear();
+  }
+
+  // node_modules/date-fns/esm/differenceInDays/index.js
+  function compareLocalAsc(dateLeft, dateRight) {
+    var diff = dateLeft.getFullYear() - dateRight.getFullYear() || dateLeft.getMonth() - dateRight.getMonth() || dateLeft.getDate() - dateRight.getDate() || dateLeft.getHours() - dateRight.getHours() || dateLeft.getMinutes() - dateRight.getMinutes() || dateLeft.getSeconds() - dateRight.getSeconds() || dateLeft.getMilliseconds() - dateRight.getMilliseconds();
+    if (diff < 0) {
+      return -1;
+    } else if (diff > 0) {
+      return 1;
+    } else {
+      return diff;
+    }
+  }
+  function differenceInDays(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    var sign2 = compareLocalAsc(dateLeft, dateRight);
+    var difference = Math.abs(differenceInCalendarDays(dateLeft, dateRight));
+    dateLeft.setDate(dateLeft.getDate() - sign2 * difference);
+    var isLastDayNotFull = Number(compareLocalAsc(dateLeft, dateRight) === -sign2);
+    var result = sign2 * (difference - isLastDayNotFull);
+    return result === 0 ? 0 : result;
+  }
+
+  // node_modules/date-fns/esm/differenceInMilliseconds/index.js
+  function differenceInMilliseconds(dateLeft, dateRight) {
+    requiredArgs(2, arguments);
+    return toDate(dateLeft).getTime() - toDate(dateRight).getTime();
+  }
+
+  // node_modules/date-fns/esm/_lib/roundingMethods/index.js
+  var roundingMap = {
+    ceil: Math.ceil,
+    round: Math.round,
+    floor: Math.floor,
+    trunc: function(value) {
+      return value < 0 ? Math.ceil(value) : Math.floor(value);
+    }
+  };
+  var defaultRoundingMethod = "trunc";
+  function getRoundingMethod(method) {
+    return method ? roundingMap[method] : roundingMap[defaultRoundingMethod];
+  }
+
+  // node_modules/date-fns/esm/differenceInHours/index.js
+  function differenceInHours(dateLeft, dateRight, options) {
+    requiredArgs(2, arguments);
+    var diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInHour;
+    return getRoundingMethod(options === null || options === void 0 ? void 0 : options.roundingMethod)(diff);
+  }
+
+  // node_modules/date-fns/esm/differenceInMinutes/index.js
+  function differenceInMinutes(dateLeft, dateRight, options) {
+    requiredArgs(2, arguments);
+    var diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInMinute;
+    return getRoundingMethod(options === null || options === void 0 ? void 0 : options.roundingMethod)(diff);
+  }
+
+  // node_modules/date-fns/esm/endOfDay/index.js
+  function endOfDay(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setHours(23, 59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfMonth/index.js
+  function endOfMonth(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var month = date.getMonth();
+    date.setFullYear(date.getFullYear(), month + 1, 0);
+    date.setHours(23, 59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/isLastDayOfMonth/index.js
+  function isLastDayOfMonth(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    return endOfDay(date).getTime() === endOfMonth(date).getTime();
+  }
+
+  // node_modules/date-fns/esm/differenceInMonths/index.js
+  function differenceInMonths(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    var sign2 = compareAsc(dateLeft, dateRight);
+    var difference = Math.abs(differenceInCalendarMonths(dateLeft, dateRight));
+    var result;
+    if (difference < 1) {
+      result = 0;
+    } else {
+      if (dateLeft.getMonth() === 1 && dateLeft.getDate() > 27) {
+        dateLeft.setDate(30);
+      }
+      dateLeft.setMonth(dateLeft.getMonth() - sign2 * difference);
+      var isLastMonthNotFull = compareAsc(dateLeft, dateRight) === -sign2;
+      if (isLastDayOfMonth(toDate(dirtyDateLeft)) && difference === 1 && compareAsc(dirtyDateLeft, dateRight) === 1) {
+        isLastMonthNotFull = false;
+      }
+      result = sign2 * (difference - Number(isLastMonthNotFull));
+    }
+    return result === 0 ? 0 : result;
+  }
+
+  // node_modules/date-fns/esm/differenceInQuarters/index.js
+  function differenceInQuarters(dateLeft, dateRight, options) {
+    requiredArgs(2, arguments);
+    var diff = differenceInMonths(dateLeft, dateRight) / 3;
+    return getRoundingMethod(options === null || options === void 0 ? void 0 : options.roundingMethod)(diff);
+  }
+
+  // node_modules/date-fns/esm/differenceInSeconds/index.js
+  function differenceInSeconds(dateLeft, dateRight, options) {
+    requiredArgs(2, arguments);
+    var diff = differenceInMilliseconds(dateLeft, dateRight) / 1e3;
+    return getRoundingMethod(options === null || options === void 0 ? void 0 : options.roundingMethod)(diff);
+  }
+
+  // node_modules/date-fns/esm/differenceInWeeks/index.js
+  function differenceInWeeks(dateLeft, dateRight, options) {
+    requiredArgs(2, arguments);
+    var diff = differenceInDays(dateLeft, dateRight) / 7;
+    return getRoundingMethod(options === null || options === void 0 ? void 0 : options.roundingMethod)(diff);
+  }
+
+  // node_modules/date-fns/esm/differenceInYears/index.js
+  function differenceInYears(dirtyDateLeft, dirtyDateRight) {
+    requiredArgs(2, arguments);
+    var dateLeft = toDate(dirtyDateLeft);
+    var dateRight = toDate(dirtyDateRight);
+    var sign2 = compareAsc(dateLeft, dateRight);
+    var difference = Math.abs(differenceInCalendarYears(dateLeft, dateRight));
+    dateLeft.setFullYear(1584);
+    dateRight.setFullYear(1584);
+    var isLastYearNotFull = compareAsc(dateLeft, dateRight) === -sign2;
+    var result = sign2 * (difference - Number(isLastYearNotFull));
+    return result === 0 ? 0 : result;
+  }
+
+  // node_modules/date-fns/esm/startOfMinute/index.js
+  function startOfMinute(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setSeconds(0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/startOfQuarter/index.js
+  function startOfQuarter(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var currentMonth = date.getMonth();
+    var month = currentMonth - currentMonth % 3;
+    date.setMonth(month, 1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/startOfMonth/index.js
+  function startOfMonth(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setDate(1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/startOfYear/index.js
+  function startOfYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var cleanDate = toDate(dirtyDate);
+    var date = new Date(0);
+    date.setFullYear(cleanDate.getFullYear(), 0, 1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfYear/index.js
+  function endOfYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var year = date.getFullYear();
+    date.setFullYear(year + 1, 0, 0);
+    date.setHours(23, 59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfHour/index.js
+  function endOfHour(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setMinutes(59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfWeek/index.js
+  function endOfWeek(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeWeekStartsOn = locale2 && locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    var date = toDate(dirtyDate);
+    var day = date.getDay();
+    var diff = (day < weekStartsOn ? -7 : 0) + 6 - (day - weekStartsOn);
+    date.setDate(date.getDate() + diff);
+    date.setHours(23, 59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfMinute/index.js
+  function endOfMinute(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setSeconds(59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfQuarter/index.js
+  function endOfQuarter(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var currentMonth = date.getMonth();
+    var month = currentMonth - currentMonth % 3 + 3;
+    date.setMonth(month, 0);
+    date.setHours(23, 59, 59, 999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/endOfSecond/index.js
+  function endOfSecond(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setMilliseconds(999);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/locale/en-US/_lib/formatDistance/index.js
+  var formatDistanceLocale = {
+    lessThanXSeconds: {
+      one: "less than a second",
+      other: "less than {{count}} seconds"
+    },
+    xSeconds: {
+      one: "1 second",
+      other: "{{count}} seconds"
+    },
+    halfAMinute: "half a minute",
+    lessThanXMinutes: {
+      one: "less than a minute",
+      other: "less than {{count}} minutes"
+    },
+    xMinutes: {
+      one: "1 minute",
+      other: "{{count}} minutes"
+    },
+    aboutXHours: {
+      one: "about 1 hour",
+      other: "about {{count}} hours"
+    },
+    xHours: {
+      one: "1 hour",
+      other: "{{count}} hours"
+    },
+    xDays: {
+      one: "1 day",
+      other: "{{count}} days"
+    },
+    aboutXWeeks: {
+      one: "about 1 week",
+      other: "about {{count}} weeks"
+    },
+    xWeeks: {
+      one: "1 week",
+      other: "{{count}} weeks"
+    },
+    aboutXMonths: {
+      one: "about 1 month",
+      other: "about {{count}} months"
+    },
+    xMonths: {
+      one: "1 month",
+      other: "{{count}} months"
+    },
+    aboutXYears: {
+      one: "about 1 year",
+      other: "about {{count}} years"
+    },
+    xYears: {
+      one: "1 year",
+      other: "{{count}} years"
+    },
+    overXYears: {
+      one: "over 1 year",
+      other: "over {{count}} years"
+    },
+    almostXYears: {
+      one: "almost 1 year",
+      other: "almost {{count}} years"
+    }
+  };
+  var formatDistance = function(token, count, options) {
+    var result;
+    var tokenValue = formatDistanceLocale[token];
+    if (typeof tokenValue === "string") {
+      result = tokenValue;
+    } else if (count === 1) {
+      result = tokenValue.one;
+    } else {
+      result = tokenValue.other.replace("{{count}}", count.toString());
+    }
+    if (options !== null && options !== void 0 && options.addSuffix) {
+      if (options.comparison && options.comparison > 0) {
+        return "in " + result;
+      } else {
+        return result + " ago";
+      }
+    }
+    return result;
+  };
+  var formatDistance_default = formatDistance;
+
+  // node_modules/date-fns/esm/locale/_lib/buildFormatLongFn/index.js
+  function buildFormatLongFn(args) {
+    return function() {
+      var options = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+      var width = options.width ? String(options.width) : args.defaultWidth;
+      var format2 = args.formats[width] || args.formats[args.defaultWidth];
+      return format2;
+    };
+  }
+
+  // node_modules/date-fns/esm/locale/en-US/_lib/formatLong/index.js
+  var dateFormats = {
+    full: "EEEE, MMMM do, y",
+    long: "MMMM do, y",
+    medium: "MMM d, y",
+    short: "MM/dd/yyyy"
+  };
+  var timeFormats = {
+    full: "h:mm:ss a zzzz",
+    long: "h:mm:ss a z",
+    medium: "h:mm:ss a",
+    short: "h:mm a"
+  };
+  var dateTimeFormats = {
+    full: "{{date}} 'at' {{time}}",
+    long: "{{date}} 'at' {{time}}",
+    medium: "{{date}}, {{time}}",
+    short: "{{date}}, {{time}}"
+  };
+  var formatLong = {
+    date: buildFormatLongFn({
+      formats: dateFormats,
+      defaultWidth: "full"
+    }),
+    time: buildFormatLongFn({
+      formats: timeFormats,
+      defaultWidth: "full"
+    }),
+    dateTime: buildFormatLongFn({
+      formats: dateTimeFormats,
+      defaultWidth: "full"
+    })
+  };
+  var formatLong_default = formatLong;
+
+  // node_modules/date-fns/esm/locale/en-US/_lib/formatRelative/index.js
+  var formatRelativeLocale = {
+    lastWeek: "'last' eeee 'at' p",
+    yesterday: "'yesterday at' p",
+    today: "'today at' p",
+    tomorrow: "'tomorrow at' p",
+    nextWeek: "eeee 'at' p",
+    other: "P"
+  };
+  var formatRelative = function(token, _date, _baseDate, _options) {
+    return formatRelativeLocale[token];
+  };
+  var formatRelative_default = formatRelative;
+
+  // node_modules/date-fns/esm/locale/_lib/buildLocalizeFn/index.js
+  function buildLocalizeFn(args) {
+    return function(dirtyIndex, dirtyOptions) {
+      var options = dirtyOptions || {};
+      var context = options.context ? String(options.context) : "standalone";
+      var valuesArray;
+      if (context === "formatting" && args.formattingValues) {
+        var defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
+        var width = options.width ? String(options.width) : defaultWidth;
+        valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
+      } else {
+        var _defaultWidth = args.defaultWidth;
+        var _width = options.width ? String(options.width) : args.defaultWidth;
+        valuesArray = args.values[_width] || args.values[_defaultWidth];
+      }
+      var index = args.argumentCallback ? args.argumentCallback(dirtyIndex) : dirtyIndex;
+      return valuesArray[index];
+    };
+  }
+
+  // node_modules/date-fns/esm/locale/en-US/_lib/localize/index.js
+  var eraValues = {
+    narrow: ["B", "A"],
+    abbreviated: ["BC", "AD"],
+    wide: ["Before Christ", "Anno Domini"]
+  };
+  var quarterValues = {
+    narrow: ["1", "2", "3", "4"],
+    abbreviated: ["Q1", "Q2", "Q3", "Q4"],
+    wide: ["1st quarter", "2nd quarter", "3rd quarter", "4th quarter"]
+  };
+  var monthValues = {
+    narrow: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
+    abbreviated: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    wide: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  };
+  var dayValues = {
+    narrow: ["S", "M", "T", "W", "T", "F", "S"],
+    short: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
+    abbreviated: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    wide: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  };
+  var dayPeriodValues = {
+    narrow: {
+      am: "a",
+      pm: "p",
+      midnight: "mi",
+      noon: "n",
+      morning: "morning",
+      afternoon: "afternoon",
+      evening: "evening",
+      night: "night"
+    },
+    abbreviated: {
+      am: "AM",
+      pm: "PM",
+      midnight: "midnight",
+      noon: "noon",
+      morning: "morning",
+      afternoon: "afternoon",
+      evening: "evening",
+      night: "night"
+    },
+    wide: {
+      am: "a.m.",
+      pm: "p.m.",
+      midnight: "midnight",
+      noon: "noon",
+      morning: "morning",
+      afternoon: "afternoon",
+      evening: "evening",
+      night: "night"
+    }
+  };
+  var formattingDayPeriodValues = {
+    narrow: {
+      am: "a",
+      pm: "p",
+      midnight: "mi",
+      noon: "n",
+      morning: "in the morning",
+      afternoon: "in the afternoon",
+      evening: "in the evening",
+      night: "at night"
+    },
+    abbreviated: {
+      am: "AM",
+      pm: "PM",
+      midnight: "midnight",
+      noon: "noon",
+      morning: "in the morning",
+      afternoon: "in the afternoon",
+      evening: "in the evening",
+      night: "at night"
+    },
+    wide: {
+      am: "a.m.",
+      pm: "p.m.",
+      midnight: "midnight",
+      noon: "noon",
+      morning: "in the morning",
+      afternoon: "in the afternoon",
+      evening: "in the evening",
+      night: "at night"
+    }
+  };
+  var ordinalNumber = function(dirtyNumber, _options) {
+    var number = Number(dirtyNumber);
+    var rem100 = number % 100;
+    if (rem100 > 20 || rem100 < 10) {
+      switch (rem100 % 10) {
+        case 1:
+          return number + "st";
+        case 2:
+          return number + "nd";
+        case 3:
+          return number + "rd";
+      }
+    }
+    return number + "th";
+  };
+  var localize = {
+    ordinalNumber,
+    era: buildLocalizeFn({
+      values: eraValues,
+      defaultWidth: "wide"
+    }),
+    quarter: buildLocalizeFn({
+      values: quarterValues,
+      defaultWidth: "wide",
+      argumentCallback: function(quarter) {
+        return quarter - 1;
+      }
+    }),
+    month: buildLocalizeFn({
+      values: monthValues,
+      defaultWidth: "wide"
+    }),
+    day: buildLocalizeFn({
+      values: dayValues,
+      defaultWidth: "wide"
+    }),
+    dayPeriod: buildLocalizeFn({
+      values: dayPeriodValues,
+      defaultWidth: "wide",
+      formattingValues: formattingDayPeriodValues,
+      defaultFormattingWidth: "wide"
+    })
+  };
+  var localize_default = localize;
+
+  // node_modules/date-fns/esm/locale/_lib/buildMatchFn/index.js
+  function buildMatchFn(args) {
+    return function(string) {
+      var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+      var width = options.width;
+      var matchPattern = width && args.matchPatterns[width] || args.matchPatterns[args.defaultMatchWidth];
+      var matchResult = string.match(matchPattern);
+      if (!matchResult) {
+        return null;
+      }
+      var matchedString = matchResult[0];
+      var parsePatterns = width && args.parsePatterns[width] || args.parsePatterns[args.defaultParseWidth];
+      var key = Array.isArray(parsePatterns) ? findIndex(parsePatterns, function(pattern) {
+        return pattern.test(matchedString);
+      }) : findKey(parsePatterns, function(pattern) {
+        return pattern.test(matchedString);
+      });
+      var value;
+      value = args.valueCallback ? args.valueCallback(key) : key;
+      value = options.valueCallback ? options.valueCallback(value) : value;
+      var rest = string.slice(matchedString.length);
+      return {
+        value,
+        rest
+      };
+    };
+  }
+  function findKey(object, predicate) {
+    for (var key in object) {
+      if (object.hasOwnProperty(key) && predicate(object[key])) {
+        return key;
+      }
+    }
+    return void 0;
+  }
+  function findIndex(array, predicate) {
+    for (var key = 0; key < array.length; key++) {
+      if (predicate(array[key])) {
+        return key;
+      }
+    }
+    return void 0;
+  }
+
+  // node_modules/date-fns/esm/locale/_lib/buildMatchPatternFn/index.js
+  function buildMatchPatternFn(args) {
+    return function(string) {
+      var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+      var matchResult = string.match(args.matchPattern);
+      if (!matchResult)
+        return null;
+      var matchedString = matchResult[0];
+      var parseResult = string.match(args.parsePattern);
+      if (!parseResult)
+        return null;
+      var value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
+      value = options.valueCallback ? options.valueCallback(value) : value;
+      var rest = string.slice(matchedString.length);
+      return {
+        value,
+        rest
+      };
+    };
+  }
+
+  // node_modules/date-fns/esm/locale/en-US/_lib/match/index.js
+  var matchOrdinalNumberPattern = /^(\d+)(th|st|nd|rd)?/i;
+  var parseOrdinalNumberPattern = /\d+/i;
+  var matchEraPatterns = {
+    narrow: /^(b|a)/i,
+    abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
+    wide: /^(before christ|before common era|anno domini|common era)/i
+  };
+  var parseEraPatterns = {
+    any: [/^b/i, /^(a|c)/i]
+  };
+  var matchQuarterPatterns = {
+    narrow: /^[1234]/i,
+    abbreviated: /^q[1234]/i,
+    wide: /^[1234](th|st|nd|rd)? quarter/i
+  };
+  var parseQuarterPatterns = {
+    any: [/1/i, /2/i, /3/i, /4/i]
+  };
+  var matchMonthPatterns = {
+    narrow: /^[jfmasond]/i,
+    abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
+    wide: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
+  };
+  var parseMonthPatterns = {
+    narrow: [/^j/i, /^f/i, /^m/i, /^a/i, /^m/i, /^j/i, /^j/i, /^a/i, /^s/i, /^o/i, /^n/i, /^d/i],
+    any: [/^ja/i, /^f/i, /^mar/i, /^ap/i, /^may/i, /^jun/i, /^jul/i, /^au/i, /^s/i, /^o/i, /^n/i, /^d/i]
+  };
+  var matchDayPatterns = {
+    narrow: /^[smtwf]/i,
+    short: /^(su|mo|tu|we|th|fr|sa)/i,
+    abbreviated: /^(sun|mon|tue|wed|thu|fri|sat)/i,
+    wide: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
+  };
+  var parseDayPatterns = {
+    narrow: [/^s/i, /^m/i, /^t/i, /^w/i, /^t/i, /^f/i, /^s/i],
+    any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
+  };
+  var matchDayPeriodPatterns = {
+    narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
+    any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
+  };
+  var parseDayPeriodPatterns = {
+    any: {
+      am: /^a/i,
+      pm: /^p/i,
+      midnight: /^mi/i,
+      noon: /^no/i,
+      morning: /morning/i,
+      afternoon: /afternoon/i,
+      evening: /evening/i,
+      night: /night/i
+    }
+  };
+  var match = {
+    ordinalNumber: buildMatchPatternFn({
+      matchPattern: matchOrdinalNumberPattern,
+      parsePattern: parseOrdinalNumberPattern,
+      valueCallback: function(value) {
+        return parseInt(value, 10);
+      }
+    }),
+    era: buildMatchFn({
+      matchPatterns: matchEraPatterns,
+      defaultMatchWidth: "wide",
+      parsePatterns: parseEraPatterns,
+      defaultParseWidth: "any"
+    }),
+    quarter: buildMatchFn({
+      matchPatterns: matchQuarterPatterns,
+      defaultMatchWidth: "wide",
+      parsePatterns: parseQuarterPatterns,
+      defaultParseWidth: "any",
+      valueCallback: function(index) {
+        return index + 1;
+      }
+    }),
+    month: buildMatchFn({
+      matchPatterns: matchMonthPatterns,
+      defaultMatchWidth: "wide",
+      parsePatterns: parseMonthPatterns,
+      defaultParseWidth: "any"
+    }),
+    day: buildMatchFn({
+      matchPatterns: matchDayPatterns,
+      defaultMatchWidth: "wide",
+      parsePatterns: parseDayPatterns,
+      defaultParseWidth: "any"
+    }),
+    dayPeriod: buildMatchFn({
+      matchPatterns: matchDayPeriodPatterns,
+      defaultMatchWidth: "any",
+      parsePatterns: parseDayPeriodPatterns,
+      defaultParseWidth: "any"
+    })
+  };
+  var match_default = match;
+
+  // node_modules/date-fns/esm/locale/en-US/index.js
+  var locale = {
+    code: "en-US",
+    formatDistance: formatDistance_default,
+    formatLong: formatLong_default,
+    formatRelative: formatRelative_default,
+    localize: localize_default,
+    match: match_default,
+    options: {
+      weekStartsOn: 0,
+      firstWeekContainsDate: 1
+    }
+  };
+  var en_US_default = locale;
+
+  // node_modules/date-fns/esm/subMilliseconds/index.js
+  function subMilliseconds(dirtyDate, dirtyAmount) {
+    requiredArgs(2, arguments);
+    var amount = toInteger(dirtyAmount);
+    return addMilliseconds(dirtyDate, -amount);
+  }
+
+  // node_modules/date-fns/esm/_lib/addLeadingZeros/index.js
+  function addLeadingZeros(number, targetLength) {
+    var sign2 = number < 0 ? "-" : "";
+    var output = Math.abs(number).toString();
+    while (output.length < targetLength) {
+      output = "0" + output;
+    }
+    return sign2 + output;
+  }
+
+  // node_modules/date-fns/esm/_lib/format/lightFormatters/index.js
+  var formatters2 = {
+    y: function(date, token) {
+      var signedYear = date.getUTCFullYear();
+      var year = signedYear > 0 ? signedYear : 1 - signedYear;
+      return addLeadingZeros(token === "yy" ? year % 100 : year, token.length);
+    },
+    M: function(date, token) {
+      var month = date.getUTCMonth();
+      return token === "M" ? String(month + 1) : addLeadingZeros(month + 1, 2);
+    },
+    d: function(date, token) {
+      return addLeadingZeros(date.getUTCDate(), token.length);
+    },
+    a: function(date, token) {
+      var dayPeriodEnumValue = date.getUTCHours() / 12 >= 1 ? "pm" : "am";
+      switch (token) {
+        case "a":
+        case "aa":
+          return dayPeriodEnumValue.toUpperCase();
+        case "aaa":
+          return dayPeriodEnumValue;
+        case "aaaaa":
+          return dayPeriodEnumValue[0];
+        case "aaaa":
+        default:
+          return dayPeriodEnumValue === "am" ? "a.m." : "p.m.";
+      }
+    },
+    h: function(date, token) {
+      return addLeadingZeros(date.getUTCHours() % 12 || 12, token.length);
+    },
+    H: function(date, token) {
+      return addLeadingZeros(date.getUTCHours(), token.length);
+    },
+    m: function(date, token) {
+      return addLeadingZeros(date.getUTCMinutes(), token.length);
+    },
+    s: function(date, token) {
+      return addLeadingZeros(date.getUTCSeconds(), token.length);
+    },
+    S: function(date, token) {
+      var numberOfDigits = token.length;
+      var milliseconds = date.getUTCMilliseconds();
+      var fractionalSeconds = Math.floor(milliseconds * Math.pow(10, numberOfDigits - 3));
+      return addLeadingZeros(fractionalSeconds, token.length);
+    }
+  };
+  var lightFormatters_default = formatters2;
+
+  // node_modules/date-fns/esm/_lib/getUTCDayOfYear/index.js
+  var MILLISECONDS_IN_DAY2 = 864e5;
+  function getUTCDayOfYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var timestamp = date.getTime();
+    date.setUTCMonth(0, 1);
+    date.setUTCHours(0, 0, 0, 0);
+    var startOfYearTimestamp = date.getTime();
+    var difference = timestamp - startOfYearTimestamp;
+    return Math.floor(difference / MILLISECONDS_IN_DAY2) + 1;
+  }
+
+  // node_modules/date-fns/esm/_lib/startOfUTCISOWeek/index.js
+  function startOfUTCISOWeek(dirtyDate) {
+    requiredArgs(1, arguments);
+    var weekStartsOn = 1;
+    var date = toDate(dirtyDate);
+    var day = date.getUTCDay();
+    var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+    date.setUTCDate(date.getUTCDate() - diff);
+    date.setUTCHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/getUTCISOWeekYear/index.js
+  function getUTCISOWeekYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var year = date.getUTCFullYear();
+    var fourthOfJanuaryOfNextYear = new Date(0);
+    fourthOfJanuaryOfNextYear.setUTCFullYear(year + 1, 0, 4);
+    fourthOfJanuaryOfNextYear.setUTCHours(0, 0, 0, 0);
+    var startOfNextYear = startOfUTCISOWeek(fourthOfJanuaryOfNextYear);
+    var fourthOfJanuaryOfThisYear = new Date(0);
+    fourthOfJanuaryOfThisYear.setUTCFullYear(year, 0, 4);
+    fourthOfJanuaryOfThisYear.setUTCHours(0, 0, 0, 0);
+    var startOfThisYear = startOfUTCISOWeek(fourthOfJanuaryOfThisYear);
+    if (date.getTime() >= startOfNextYear.getTime()) {
+      return year + 1;
+    } else if (date.getTime() >= startOfThisYear.getTime()) {
+      return year;
+    } else {
+      return year - 1;
+    }
+  }
+
+  // node_modules/date-fns/esm/_lib/startOfUTCISOWeekYear/index.js
+  function startOfUTCISOWeekYear(dirtyDate) {
+    requiredArgs(1, arguments);
+    var year = getUTCISOWeekYear(dirtyDate);
+    var fourthOfJanuary = new Date(0);
+    fourthOfJanuary.setUTCFullYear(year, 0, 4);
+    fourthOfJanuary.setUTCHours(0, 0, 0, 0);
+    var date = startOfUTCISOWeek(fourthOfJanuary);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/getUTCISOWeek/index.js
+  var MILLISECONDS_IN_WEEK = 6048e5;
+  function getUTCISOWeek(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var diff = startOfUTCISOWeek(date).getTime() - startOfUTCISOWeekYear(date).getTime();
+    return Math.round(diff / MILLISECONDS_IN_WEEK) + 1;
+  }
+
+  // node_modules/date-fns/esm/_lib/startOfUTCWeek/index.js
+  function startOfUTCWeek(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeWeekStartsOn = locale2 && locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    var date = toDate(dirtyDate);
+    var day = date.getUTCDay();
+    var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
+    date.setUTCDate(date.getUTCDate() - diff);
+    date.setUTCHours(0, 0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/getUTCWeekYear/index.js
+  function getUTCWeekYear(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate, dirtyOptions);
+    var year = date.getUTCFullYear();
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeFirstWeekContainsDate = locale2 && locale2.options && locale2.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate);
+    if (!(firstWeekContainsDate >= 1 && firstWeekContainsDate <= 7)) {
+      throw new RangeError("firstWeekContainsDate must be between 1 and 7 inclusively");
+    }
+    var firstWeekOfNextYear = new Date(0);
+    firstWeekOfNextYear.setUTCFullYear(year + 1, 0, firstWeekContainsDate);
+    firstWeekOfNextYear.setUTCHours(0, 0, 0, 0);
+    var startOfNextYear = startOfUTCWeek(firstWeekOfNextYear, dirtyOptions);
+    var firstWeekOfThisYear = new Date(0);
+    firstWeekOfThisYear.setUTCFullYear(year, 0, firstWeekContainsDate);
+    firstWeekOfThisYear.setUTCHours(0, 0, 0, 0);
+    var startOfThisYear = startOfUTCWeek(firstWeekOfThisYear, dirtyOptions);
+    if (date.getTime() >= startOfNextYear.getTime()) {
+      return year + 1;
+    } else if (date.getTime() >= startOfThisYear.getTime()) {
+      return year;
+    } else {
+      return year - 1;
+    }
+  }
+
+  // node_modules/date-fns/esm/_lib/startOfUTCWeekYear/index.js
+  function startOfUTCWeekYear(dirtyDate, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeFirstWeekContainsDate = locale2 && locale2.options && locale2.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate);
+    var year = getUTCWeekYear(dirtyDate, dirtyOptions);
+    var firstWeek = new Date(0);
+    firstWeek.setUTCFullYear(year, 0, firstWeekContainsDate);
+    firstWeek.setUTCHours(0, 0, 0, 0);
+    var date = startOfUTCWeek(firstWeek, dirtyOptions);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/getUTCWeek/index.js
+  var MILLISECONDS_IN_WEEK2 = 6048e5;
+  function getUTCWeek(dirtyDate, options) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    var diff = startOfUTCWeek(date, options).getTime() - startOfUTCWeekYear(date, options).getTime();
+    return Math.round(diff / MILLISECONDS_IN_WEEK2) + 1;
+  }
+
+  // node_modules/date-fns/esm/_lib/format/formatters/index.js
+  var dayPeriodEnum = {
+    am: "am",
+    pm: "pm",
+    midnight: "midnight",
+    noon: "noon",
+    morning: "morning",
+    afternoon: "afternoon",
+    evening: "evening",
+    night: "night"
+  };
+  var formatters3 = {
+    G: function(date, token, localize2) {
+      var era = date.getUTCFullYear() > 0 ? 1 : 0;
+      switch (token) {
+        case "G":
+        case "GG":
+        case "GGG":
+          return localize2.era(era, {
+            width: "abbreviated"
+          });
+        case "GGGGG":
+          return localize2.era(era, {
+            width: "narrow"
+          });
+        case "GGGG":
+        default:
+          return localize2.era(era, {
+            width: "wide"
+          });
+      }
+    },
+    y: function(date, token, localize2) {
+      if (token === "yo") {
+        var signedYear = date.getUTCFullYear();
+        var year = signedYear > 0 ? signedYear : 1 - signedYear;
+        return localize2.ordinalNumber(year, {
+          unit: "year"
+        });
+      }
+      return lightFormatters_default.y(date, token);
+    },
+    Y: function(date, token, localize2, options) {
+      var signedWeekYear = getUTCWeekYear(date, options);
+      var weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
+      if (token === "YY") {
+        var twoDigitYear = weekYear % 100;
+        return addLeadingZeros(twoDigitYear, 2);
+      }
+      if (token === "Yo") {
+        return localize2.ordinalNumber(weekYear, {
+          unit: "year"
+        });
+      }
+      return addLeadingZeros(weekYear, token.length);
+    },
+    R: function(date, token) {
+      var isoWeekYear = getUTCISOWeekYear(date);
+      return addLeadingZeros(isoWeekYear, token.length);
+    },
+    u: function(date, token) {
+      var year = date.getUTCFullYear();
+      return addLeadingZeros(year, token.length);
+    },
+    Q: function(date, token, localize2) {
+      var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
+      switch (token) {
+        case "Q":
+          return String(quarter);
+        case "QQ":
+          return addLeadingZeros(quarter, 2);
+        case "Qo":
+          return localize2.ordinalNumber(quarter, {
+            unit: "quarter"
+          });
+        case "QQQ":
+          return localize2.quarter(quarter, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "QQQQQ":
+          return localize2.quarter(quarter, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "QQQQ":
+        default:
+          return localize2.quarter(quarter, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    q: function(date, token, localize2) {
+      var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
+      switch (token) {
+        case "q":
+          return String(quarter);
+        case "qq":
+          return addLeadingZeros(quarter, 2);
+        case "qo":
+          return localize2.ordinalNumber(quarter, {
+            unit: "quarter"
+          });
+        case "qqq":
+          return localize2.quarter(quarter, {
+            width: "abbreviated",
+            context: "standalone"
+          });
+        case "qqqqq":
+          return localize2.quarter(quarter, {
+            width: "narrow",
+            context: "standalone"
+          });
+        case "qqqq":
+        default:
+          return localize2.quarter(quarter, {
+            width: "wide",
+            context: "standalone"
+          });
+      }
+    },
+    M: function(date, token, localize2) {
+      var month = date.getUTCMonth();
+      switch (token) {
+        case "M":
+        case "MM":
+          return lightFormatters_default.M(date, token);
+        case "Mo":
+          return localize2.ordinalNumber(month + 1, {
+            unit: "month"
+          });
+        case "MMM":
+          return localize2.month(month, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "MMMMM":
+          return localize2.month(month, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "MMMM":
+        default:
+          return localize2.month(month, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    L: function(date, token, localize2) {
+      var month = date.getUTCMonth();
+      switch (token) {
+        case "L":
+          return String(month + 1);
+        case "LL":
+          return addLeadingZeros(month + 1, 2);
+        case "Lo":
+          return localize2.ordinalNumber(month + 1, {
+            unit: "month"
+          });
+        case "LLL":
+          return localize2.month(month, {
+            width: "abbreviated",
+            context: "standalone"
+          });
+        case "LLLLL":
+          return localize2.month(month, {
+            width: "narrow",
+            context: "standalone"
+          });
+        case "LLLL":
+        default:
+          return localize2.month(month, {
+            width: "wide",
+            context: "standalone"
+          });
+      }
+    },
+    w: function(date, token, localize2, options) {
+      var week = getUTCWeek(date, options);
+      if (token === "wo") {
+        return localize2.ordinalNumber(week, {
+          unit: "week"
+        });
+      }
+      return addLeadingZeros(week, token.length);
+    },
+    I: function(date, token, localize2) {
+      var isoWeek = getUTCISOWeek(date);
+      if (token === "Io") {
+        return localize2.ordinalNumber(isoWeek, {
+          unit: "week"
+        });
+      }
+      return addLeadingZeros(isoWeek, token.length);
+    },
+    d: function(date, token, localize2) {
+      if (token === "do") {
+        return localize2.ordinalNumber(date.getUTCDate(), {
+          unit: "date"
+        });
+      }
+      return lightFormatters_default.d(date, token);
+    },
+    D: function(date, token, localize2) {
+      var dayOfYear = getUTCDayOfYear(date);
+      if (token === "Do") {
+        return localize2.ordinalNumber(dayOfYear, {
+          unit: "dayOfYear"
+        });
+      }
+      return addLeadingZeros(dayOfYear, token.length);
+    },
+    E: function(date, token, localize2) {
+      var dayOfWeek = date.getUTCDay();
+      switch (token) {
+        case "E":
+        case "EE":
+        case "EEE":
+          return localize2.day(dayOfWeek, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "EEEEE":
+          return localize2.day(dayOfWeek, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "EEEEEE":
+          return localize2.day(dayOfWeek, {
+            width: "short",
+            context: "formatting"
+          });
+        case "EEEE":
+        default:
+          return localize2.day(dayOfWeek, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    e: function(date, token, localize2, options) {
+      var dayOfWeek = date.getUTCDay();
+      var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+      switch (token) {
+        case "e":
+          return String(localDayOfWeek);
+        case "ee":
+          return addLeadingZeros(localDayOfWeek, 2);
+        case "eo":
+          return localize2.ordinalNumber(localDayOfWeek, {
+            unit: "day"
+          });
+        case "eee":
+          return localize2.day(dayOfWeek, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "eeeee":
+          return localize2.day(dayOfWeek, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "eeeeee":
+          return localize2.day(dayOfWeek, {
+            width: "short",
+            context: "formatting"
+          });
+        case "eeee":
+        default:
+          return localize2.day(dayOfWeek, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    c: function(date, token, localize2, options) {
+      var dayOfWeek = date.getUTCDay();
+      var localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+      switch (token) {
+        case "c":
+          return String(localDayOfWeek);
+        case "cc":
+          return addLeadingZeros(localDayOfWeek, token.length);
+        case "co":
+          return localize2.ordinalNumber(localDayOfWeek, {
+            unit: "day"
+          });
+        case "ccc":
+          return localize2.day(dayOfWeek, {
+            width: "abbreviated",
+            context: "standalone"
+          });
+        case "ccccc":
+          return localize2.day(dayOfWeek, {
+            width: "narrow",
+            context: "standalone"
+          });
+        case "cccccc":
+          return localize2.day(dayOfWeek, {
+            width: "short",
+            context: "standalone"
+          });
+        case "cccc":
+        default:
+          return localize2.day(dayOfWeek, {
+            width: "wide",
+            context: "standalone"
+          });
+      }
+    },
+    i: function(date, token, localize2) {
+      var dayOfWeek = date.getUTCDay();
+      var isoDayOfWeek = dayOfWeek === 0 ? 7 : dayOfWeek;
+      switch (token) {
+        case "i":
+          return String(isoDayOfWeek);
+        case "ii":
+          return addLeadingZeros(isoDayOfWeek, token.length);
+        case "io":
+          return localize2.ordinalNumber(isoDayOfWeek, {
+            unit: "day"
+          });
+        case "iii":
+          return localize2.day(dayOfWeek, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "iiiii":
+          return localize2.day(dayOfWeek, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "iiiiii":
+          return localize2.day(dayOfWeek, {
+            width: "short",
+            context: "formatting"
+          });
+        case "iiii":
+        default:
+          return localize2.day(dayOfWeek, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    a: function(date, token, localize2) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
+      switch (token) {
+        case "a":
+        case "aa":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "aaa":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "abbreviated",
+            context: "formatting"
+          }).toLowerCase();
+        case "aaaaa":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "aaaa":
+        default:
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    b: function(date, token, localize2) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue;
+      if (hours === 12) {
+        dayPeriodEnumValue = dayPeriodEnum.noon;
+      } else if (hours === 0) {
+        dayPeriodEnumValue = dayPeriodEnum.midnight;
+      } else {
+        dayPeriodEnumValue = hours / 12 >= 1 ? "pm" : "am";
+      }
+      switch (token) {
+        case "b":
+        case "bb":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "bbb":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "abbreviated",
+            context: "formatting"
+          }).toLowerCase();
+        case "bbbbb":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "bbbb":
+        default:
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    B: function(date, token, localize2) {
+      var hours = date.getUTCHours();
+      var dayPeriodEnumValue;
+      if (hours >= 17) {
+        dayPeriodEnumValue = dayPeriodEnum.evening;
+      } else if (hours >= 12) {
+        dayPeriodEnumValue = dayPeriodEnum.afternoon;
+      } else if (hours >= 4) {
+        dayPeriodEnumValue = dayPeriodEnum.morning;
+      } else {
+        dayPeriodEnumValue = dayPeriodEnum.night;
+      }
+      switch (token) {
+        case "B":
+        case "BB":
+        case "BBB":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "abbreviated",
+            context: "formatting"
+          });
+        case "BBBBB":
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "narrow",
+            context: "formatting"
+          });
+        case "BBBB":
+        default:
+          return localize2.dayPeriod(dayPeriodEnumValue, {
+            width: "wide",
+            context: "formatting"
+          });
+      }
+    },
+    h: function(date, token, localize2) {
+      if (token === "ho") {
+        var hours = date.getUTCHours() % 12;
+        if (hours === 0)
+          hours = 12;
+        return localize2.ordinalNumber(hours, {
+          unit: "hour"
+        });
+      }
+      return lightFormatters_default.h(date, token);
+    },
+    H: function(date, token, localize2) {
+      if (token === "Ho") {
+        return localize2.ordinalNumber(date.getUTCHours(), {
+          unit: "hour"
+        });
+      }
+      return lightFormatters_default.H(date, token);
+    },
+    K: function(date, token, localize2) {
+      var hours = date.getUTCHours() % 12;
+      if (token === "Ko") {
+        return localize2.ordinalNumber(hours, {
+          unit: "hour"
+        });
+      }
+      return addLeadingZeros(hours, token.length);
+    },
+    k: function(date, token, localize2) {
+      var hours = date.getUTCHours();
+      if (hours === 0)
+        hours = 24;
+      if (token === "ko") {
+        return localize2.ordinalNumber(hours, {
+          unit: "hour"
+        });
+      }
+      return addLeadingZeros(hours, token.length);
+    },
+    m: function(date, token, localize2) {
+      if (token === "mo") {
+        return localize2.ordinalNumber(date.getUTCMinutes(), {
+          unit: "minute"
+        });
+      }
+      return lightFormatters_default.m(date, token);
+    },
+    s: function(date, token, localize2) {
+      if (token === "so") {
+        return localize2.ordinalNumber(date.getUTCSeconds(), {
+          unit: "second"
+        });
+      }
+      return lightFormatters_default.s(date, token);
+    },
+    S: function(date, token) {
+      return lightFormatters_default.S(date, token);
+    },
+    X: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+      if (timezoneOffset === 0) {
+        return "Z";
+      }
+      switch (token) {
+        case "X":
+          return formatTimezoneWithOptionalMinutes(timezoneOffset);
+        case "XXXX":
+        case "XX":
+          return formatTimezone(timezoneOffset);
+        case "XXXXX":
+        case "XXX":
+        default:
+          return formatTimezone(timezoneOffset, ":");
+      }
+    },
+    x: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+      switch (token) {
+        case "x":
+          return formatTimezoneWithOptionalMinutes(timezoneOffset);
+        case "xxxx":
+        case "xx":
+          return formatTimezone(timezoneOffset);
+        case "xxxxx":
+        case "xxx":
+        default:
+          return formatTimezone(timezoneOffset, ":");
+      }
+    },
+    O: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+      switch (token) {
+        case "O":
+        case "OO":
+        case "OOO":
+          return "GMT" + formatTimezoneShort(timezoneOffset, ":");
+        case "OOOO":
+        default:
+          return "GMT" + formatTimezone(timezoneOffset, ":");
+      }
+    },
+    z: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timezoneOffset = originalDate.getTimezoneOffset();
+      switch (token) {
+        case "z":
+        case "zz":
+        case "zzz":
+          return "GMT" + formatTimezoneShort(timezoneOffset, ":");
+        case "zzzz":
+        default:
+          return "GMT" + formatTimezone(timezoneOffset, ":");
+      }
+    },
+    t: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timestamp = Math.floor(originalDate.getTime() / 1e3);
+      return addLeadingZeros(timestamp, token.length);
+    },
+    T: function(date, token, _localize, options) {
+      var originalDate = options._originalDate || date;
+      var timestamp = originalDate.getTime();
+      return addLeadingZeros(timestamp, token.length);
+    }
+  };
+  function formatTimezoneShort(offset, dirtyDelimiter) {
+    var sign2 = offset > 0 ? "-" : "+";
+    var absOffset = Math.abs(offset);
+    var hours = Math.floor(absOffset / 60);
+    var minutes = absOffset % 60;
+    if (minutes === 0) {
+      return sign2 + String(hours);
+    }
+    var delimiter = dirtyDelimiter || "";
+    return sign2 + String(hours) + delimiter + addLeadingZeros(minutes, 2);
+  }
+  function formatTimezoneWithOptionalMinutes(offset, dirtyDelimiter) {
+    if (offset % 60 === 0) {
+      var sign2 = offset > 0 ? "-" : "+";
+      return sign2 + addLeadingZeros(Math.abs(offset) / 60, 2);
+    }
+    return formatTimezone(offset, dirtyDelimiter);
+  }
+  function formatTimezone(offset, dirtyDelimiter) {
+    var delimiter = dirtyDelimiter || "";
+    var sign2 = offset > 0 ? "-" : "+";
+    var absOffset = Math.abs(offset);
+    var hours = addLeadingZeros(Math.floor(absOffset / 60), 2);
+    var minutes = addLeadingZeros(absOffset % 60, 2);
+    return sign2 + hours + delimiter + minutes;
+  }
+  var formatters_default = formatters3;
+
+  // node_modules/date-fns/esm/_lib/format/longFormatters/index.js
+  function dateLongFormatter(pattern, formatLong2) {
+    switch (pattern) {
+      case "P":
+        return formatLong2.date({
+          width: "short"
+        });
+      case "PP":
+        return formatLong2.date({
+          width: "medium"
+        });
+      case "PPP":
+        return formatLong2.date({
+          width: "long"
+        });
+      case "PPPP":
+      default:
+        return formatLong2.date({
+          width: "full"
+        });
+    }
+  }
+  function timeLongFormatter(pattern, formatLong2) {
+    switch (pattern) {
+      case "p":
+        return formatLong2.time({
+          width: "short"
+        });
+      case "pp":
+        return formatLong2.time({
+          width: "medium"
+        });
+      case "ppp":
+        return formatLong2.time({
+          width: "long"
+        });
+      case "pppp":
+      default:
+        return formatLong2.time({
+          width: "full"
+        });
+    }
+  }
+  function dateTimeLongFormatter(pattern, formatLong2) {
+    var matchResult = pattern.match(/(P+)(p+)?/);
+    var datePattern = matchResult[1];
+    var timePattern = matchResult[2];
+    if (!timePattern) {
+      return dateLongFormatter(pattern, formatLong2);
+    }
+    var dateTimeFormat;
+    switch (datePattern) {
+      case "P":
+        dateTimeFormat = formatLong2.dateTime({
+          width: "short"
+        });
+        break;
+      case "PP":
+        dateTimeFormat = formatLong2.dateTime({
+          width: "medium"
+        });
+        break;
+      case "PPP":
+        dateTimeFormat = formatLong2.dateTime({
+          width: "long"
+        });
+        break;
+      case "PPPP":
+      default:
+        dateTimeFormat = formatLong2.dateTime({
+          width: "full"
+        });
+        break;
+    }
+    return dateTimeFormat.replace("{{date}}", dateLongFormatter(datePattern, formatLong2)).replace("{{time}}", timeLongFormatter(timePattern, formatLong2));
+  }
+  var longFormatters = {
+    p: timeLongFormatter,
+    P: dateTimeLongFormatter
+  };
+  var longFormatters_default = longFormatters;
+
+  // node_modules/date-fns/esm/_lib/protectedTokens/index.js
+  var protectedDayOfYearTokens = ["D", "DD"];
+  var protectedWeekYearTokens = ["YY", "YYYY"];
+  function isProtectedDayOfYearToken(token) {
+    return protectedDayOfYearTokens.indexOf(token) !== -1;
+  }
+  function isProtectedWeekYearToken(token) {
+    return protectedWeekYearTokens.indexOf(token) !== -1;
+  }
+  function throwProtectedError(token, format2, input) {
+    if (token === "YYYY") {
+      throw new RangeError("Use `yyyy` instead of `YYYY` (in `".concat(format2, "`) for formatting years to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === "YY") {
+      throw new RangeError("Use `yy` instead of `YY` (in `".concat(format2, "`) for formatting years to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === "D") {
+      throw new RangeError("Use `d` instead of `D` (in `".concat(format2, "`) for formatting days of the month to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    } else if (token === "DD") {
+      throw new RangeError("Use `dd` instead of `DD` (in `".concat(format2, "`) for formatting days of the month to the input `").concat(input, "`; see: https://git.io/fxCyr"));
+    }
+  }
+
+  // node_modules/date-fns/esm/format/index.js
+  var formattingTokensRegExp = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;
+  var longFormattingTokensRegExp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
+  var escapedStringRegExp = /^'([^]*?)'?$/;
+  var doubleQuoteRegExp = /''/g;
+  var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
+  function format(dirtyDate, dirtyFormatStr, dirtyOptions) {
+    requiredArgs(2, arguments);
+    var formatStr = String(dirtyFormatStr);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale || en_US_default;
+    var localeFirstWeekContainsDate = locale2.options && locale2.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate);
+    if (!(firstWeekContainsDate >= 1 && firstWeekContainsDate <= 7)) {
+      throw new RangeError("firstWeekContainsDate must be between 1 and 7 inclusively");
+    }
+    var localeWeekStartsOn = locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    if (!locale2.localize) {
+      throw new RangeError("locale must contain localize property");
+    }
+    if (!locale2.formatLong) {
+      throw new RangeError("locale must contain formatLong property");
+    }
+    var originalDate = toDate(dirtyDate);
+    if (!isValid(originalDate)) {
+      throw new RangeError("Invalid time value");
+    }
+    var timezoneOffset = getTimezoneOffsetInMilliseconds(originalDate);
+    var utcDate = subMilliseconds(originalDate, timezoneOffset);
+    var formatterOptions = {
+      firstWeekContainsDate,
+      weekStartsOn,
+      locale: locale2,
+      _originalDate: originalDate
+    };
+    var result = formatStr.match(longFormattingTokensRegExp).map(function(substring) {
+      var firstCharacter = substring[0];
+      if (firstCharacter === "p" || firstCharacter === "P") {
+        var longFormatter = longFormatters_default[firstCharacter];
+        return longFormatter(substring, locale2.formatLong, formatterOptions);
+      }
+      return substring;
+    }).join("").match(formattingTokensRegExp).map(function(substring) {
+      if (substring === "''") {
+        return "'";
+      }
+      var firstCharacter = substring[0];
+      if (firstCharacter === "'") {
+        return cleanEscapedString(substring);
+      }
+      var formatter = formatters_default[firstCharacter];
+      if (formatter) {
+        if (!options.useAdditionalWeekYearTokens && isProtectedWeekYearToken(substring)) {
+          throwProtectedError(substring, dirtyFormatStr, dirtyDate);
+        }
+        if (!options.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(substring)) {
+          throwProtectedError(substring, dirtyFormatStr, dirtyDate);
+        }
+        return formatter(utcDate, substring, locale2.localize, formatterOptions);
+      }
+      if (firstCharacter.match(unescapedLatinCharacterRegExp)) {
+        throw new RangeError("Format string contains an unescaped latin alphabet character `" + firstCharacter + "`");
+      }
+      return substring;
+    }).join("");
+    return result;
+  }
+  function cleanEscapedString(input) {
+    return input.match(escapedStringRegExp)[1].replace(doubleQuoteRegExp, "'");
+  }
+
+  // node_modules/date-fns/esm/_lib/assign/index.js
+  function assign(target, dirtyObject) {
+    if (target == null) {
+      throw new TypeError("assign requires that input parameter not be null or undefined");
+    }
+    dirtyObject = dirtyObject || {};
+    for (var property in dirtyObject) {
+      if (Object.prototype.hasOwnProperty.call(dirtyObject, property)) {
+        target[property] = dirtyObject[property];
+      }
+    }
+    return target;
+  }
+
+  // node_modules/date-fns/esm/_lib/setUTCDay/index.js
+  function setUTCDay(dirtyDate, dirtyDay, dirtyOptions) {
+    requiredArgs(2, arguments);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale;
+    var localeWeekStartsOn = locale2 && locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    var date = toDate(dirtyDate);
+    var day = toInteger(dirtyDay);
+    var currentDay = date.getUTCDay();
+    var remainder = day % 7;
+    var dayIndex = (remainder + 7) % 7;
+    var diff = (dayIndex < weekStartsOn ? 7 : 0) + day - currentDay;
+    date.setUTCDate(date.getUTCDate() + diff);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/setUTCISODay/index.js
+  function setUTCISODay(dirtyDate, dirtyDay) {
+    requiredArgs(2, arguments);
+    var day = toInteger(dirtyDay);
+    if (day % 7 === 0) {
+      day = day - 7;
+    }
+    var weekStartsOn = 1;
+    var date = toDate(dirtyDate);
+    var currentDay = date.getUTCDay();
+    var remainder = day % 7;
+    var dayIndex = (remainder + 7) % 7;
+    var diff = (dayIndex < weekStartsOn ? 7 : 0) + day - currentDay;
+    date.setUTCDate(date.getUTCDate() + diff);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/setUTCISOWeek/index.js
+  function setUTCISOWeek(dirtyDate, dirtyISOWeek) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var isoWeek = toInteger(dirtyISOWeek);
+    var diff = getUTCISOWeek(date) - isoWeek;
+    date.setUTCDate(date.getUTCDate() - diff * 7);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/_lib/setUTCWeek/index.js
+  function setUTCWeek(dirtyDate, dirtyWeek, options) {
+    requiredArgs(2, arguments);
+    var date = toDate(dirtyDate);
+    var week = toInteger(dirtyWeek);
+    var diff = getUTCWeek(date, options) - week;
+    date.setUTCDate(date.getUTCDate() - diff * 7);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/parse/_lib/parsers/index.js
+  var MILLISECONDS_IN_HOUR2 = 36e5;
+  var MILLISECONDS_IN_MINUTE2 = 6e4;
+  var MILLISECONDS_IN_SECOND = 1e3;
+  var numericPatterns = {
+    month: /^(1[0-2]|0?\d)/,
+    date: /^(3[0-1]|[0-2]?\d)/,
+    dayOfYear: /^(36[0-6]|3[0-5]\d|[0-2]?\d?\d)/,
+    week: /^(5[0-3]|[0-4]?\d)/,
+    hour23h: /^(2[0-3]|[0-1]?\d)/,
+    hour24h: /^(2[0-4]|[0-1]?\d)/,
+    hour11h: /^(1[0-1]|0?\d)/,
+    hour12h: /^(1[0-2]|0?\d)/,
+    minute: /^[0-5]?\d/,
+    second: /^[0-5]?\d/,
+    singleDigit: /^\d/,
+    twoDigits: /^\d{1,2}/,
+    threeDigits: /^\d{1,3}/,
+    fourDigits: /^\d{1,4}/,
+    anyDigitsSigned: /^-?\d+/,
+    singleDigitSigned: /^-?\d/,
+    twoDigitsSigned: /^-?\d{1,2}/,
+    threeDigitsSigned: /^-?\d{1,3}/,
+    fourDigitsSigned: /^-?\d{1,4}/
+  };
+  var timezonePatterns = {
+    basicOptionalMinutes: /^([+-])(\d{2})(\d{2})?|Z/,
+    basic: /^([+-])(\d{2})(\d{2})|Z/,
+    basicOptionalSeconds: /^([+-])(\d{2})(\d{2})((\d{2}))?|Z/,
+    extended: /^([+-])(\d{2}):(\d{2})|Z/,
+    extendedOptionalSeconds: /^([+-])(\d{2}):(\d{2})(:(\d{2}))?|Z/
+  };
+  function parseNumericPattern(pattern, string, valueCallback) {
+    var matchResult = string.match(pattern);
+    if (!matchResult) {
+      return null;
+    }
+    var value = parseInt(matchResult[0], 10);
+    return {
+      value: valueCallback ? valueCallback(value) : value,
+      rest: string.slice(matchResult[0].length)
+    };
+  }
+  function parseTimezonePattern(pattern, string) {
+    var matchResult = string.match(pattern);
+    if (!matchResult) {
+      return null;
+    }
+    if (matchResult[0] === "Z") {
+      return {
+        value: 0,
+        rest: string.slice(1)
+      };
+    }
+    var sign2 = matchResult[1] === "+" ? 1 : -1;
+    var hours = matchResult[2] ? parseInt(matchResult[2], 10) : 0;
+    var minutes = matchResult[3] ? parseInt(matchResult[3], 10) : 0;
+    var seconds = matchResult[5] ? parseInt(matchResult[5], 10) : 0;
+    return {
+      value: sign2 * (hours * MILLISECONDS_IN_HOUR2 + minutes * MILLISECONDS_IN_MINUTE2 + seconds * MILLISECONDS_IN_SECOND),
+      rest: string.slice(matchResult[0].length)
+    };
+  }
+  function parseAnyDigitsSigned(string, valueCallback) {
+    return parseNumericPattern(numericPatterns.anyDigitsSigned, string, valueCallback);
+  }
+  function parseNDigits(n, string, valueCallback) {
+    switch (n) {
+      case 1:
+        return parseNumericPattern(numericPatterns.singleDigit, string, valueCallback);
+      case 2:
+        return parseNumericPattern(numericPatterns.twoDigits, string, valueCallback);
+      case 3:
+        return parseNumericPattern(numericPatterns.threeDigits, string, valueCallback);
+      case 4:
+        return parseNumericPattern(numericPatterns.fourDigits, string, valueCallback);
+      default:
+        return parseNumericPattern(new RegExp("^\\d{1," + n + "}"), string, valueCallback);
+    }
+  }
+  function parseNDigitsSigned(n, string, valueCallback) {
+    switch (n) {
+      case 1:
+        return parseNumericPattern(numericPatterns.singleDigitSigned, string, valueCallback);
+      case 2:
+        return parseNumericPattern(numericPatterns.twoDigitsSigned, string, valueCallback);
+      case 3:
+        return parseNumericPattern(numericPatterns.threeDigitsSigned, string, valueCallback);
+      case 4:
+        return parseNumericPattern(numericPatterns.fourDigitsSigned, string, valueCallback);
+      default:
+        return parseNumericPattern(new RegExp("^-?\\d{1," + n + "}"), string, valueCallback);
+    }
+  }
+  function dayPeriodEnumToHours(enumValue) {
+    switch (enumValue) {
+      case "morning":
+        return 4;
+      case "evening":
+        return 17;
+      case "pm":
+      case "noon":
+      case "afternoon":
+        return 12;
+      case "am":
+      case "midnight":
+      case "night":
+      default:
+        return 0;
+    }
+  }
+  function normalizeTwoDigitYear(twoDigitYear, currentYear) {
+    var isCommonEra = currentYear > 0;
+    var absCurrentYear = isCommonEra ? currentYear : 1 - currentYear;
+    var result;
+    if (absCurrentYear <= 50) {
+      result = twoDigitYear || 100;
+    } else {
+      var rangeEnd = absCurrentYear + 50;
+      var rangeEndCentury = Math.floor(rangeEnd / 100) * 100;
+      var isPreviousCentury = twoDigitYear >= rangeEnd % 100;
+      result = twoDigitYear + rangeEndCentury - (isPreviousCentury ? 100 : 0);
+    }
+    return isCommonEra ? result : 1 - result;
+  }
+  var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  var DAYS_IN_MONTH_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  function isLeapYearIndex(year) {
+    return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
+  }
+  var parsers = {
+    G: {
+      priority: 140,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "G":
+          case "GG":
+          case "GGG":
+            return match2.era(string, {
+              width: "abbreviated"
+            }) || match2.era(string, {
+              width: "narrow"
+            });
+          case "GGGGG":
+            return match2.era(string, {
+              width: "narrow"
+            });
+          case "GGGG":
+          default:
+            return match2.era(string, {
+              width: "wide"
+            }) || match2.era(string, {
+              width: "abbreviated"
+            }) || match2.era(string, {
+              width: "narrow"
+            });
+        }
+      },
+      set: function(date, flags, value, _options) {
+        flags.era = value;
+        date.setUTCFullYear(value, 0, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["R", "u", "t", "T"]
+    },
+    y: {
+      priority: 130,
+      parse: function(string, token, match2, _options) {
+        var valueCallback = function(year) {
+          return {
+            year,
+            isTwoDigitYear: token === "yy"
+          };
+        };
+        switch (token) {
+          case "y":
+            return parseNDigits(4, string, valueCallback);
+          case "yo":
+            return match2.ordinalNumber(string, {
+              unit: "year",
+              valueCallback
+            });
+          default:
+            return parseNDigits(token.length, string, valueCallback);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value.isTwoDigitYear || value.year > 0;
+      },
+      set: function(date, flags, value, _options) {
+        var currentYear = date.getUTCFullYear();
+        if (value.isTwoDigitYear) {
+          var normalizedTwoDigitYear = normalizeTwoDigitYear(value.year, currentYear);
+          date.setUTCFullYear(normalizedTwoDigitYear, 0, 1);
+          date.setUTCHours(0, 0, 0, 0);
+          return date;
+        }
+        var year = !("era" in flags) || flags.era === 1 ? value.year : 1 - value.year;
+        date.setUTCFullYear(year, 0, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "u", "w", "I", "i", "e", "c", "t", "T"]
+    },
+    Y: {
+      priority: 130,
+      parse: function(string, token, match2, _options) {
+        var valueCallback = function(year) {
+          return {
+            year,
+            isTwoDigitYear: token === "YY"
+          };
+        };
+        switch (token) {
+          case "Y":
+            return parseNDigits(4, string, valueCallback);
+          case "Yo":
+            return match2.ordinalNumber(string, {
+              unit: "year",
+              valueCallback
+            });
+          default:
+            return parseNDigits(token.length, string, valueCallback);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value.isTwoDigitYear || value.year > 0;
+      },
+      set: function(date, flags, value, options) {
+        var currentYear = getUTCWeekYear(date, options);
+        if (value.isTwoDigitYear) {
+          var normalizedTwoDigitYear = normalizeTwoDigitYear(value.year, currentYear);
+          date.setUTCFullYear(normalizedTwoDigitYear, 0, options.firstWeekContainsDate);
+          date.setUTCHours(0, 0, 0, 0);
+          return startOfUTCWeek(date, options);
+        }
+        var year = !("era" in flags) || flags.era === 1 ? value.year : 1 - value.year;
+        date.setUTCFullYear(year, 0, options.firstWeekContainsDate);
+        date.setUTCHours(0, 0, 0, 0);
+        return startOfUTCWeek(date, options);
+      },
+      incompatibleTokens: ["y", "R", "u", "Q", "q", "M", "L", "I", "d", "D", "i", "t", "T"]
+    },
+    R: {
+      priority: 130,
+      parse: function(string, token, _match, _options) {
+        if (token === "R") {
+          return parseNDigitsSigned(4, string);
+        }
+        return parseNDigitsSigned(token.length, string);
+      },
+      set: function(_date, _flags, value, _options) {
+        var firstWeekOfYear = new Date(0);
+        firstWeekOfYear.setUTCFullYear(value, 0, 4);
+        firstWeekOfYear.setUTCHours(0, 0, 0, 0);
+        return startOfUTCISOWeek(firstWeekOfYear);
+      },
+      incompatibleTokens: ["G", "y", "Y", "u", "Q", "q", "M", "L", "w", "d", "D", "e", "c", "t", "T"]
+    },
+    u: {
+      priority: 130,
+      parse: function(string, token, _match, _options) {
+        if (token === "u") {
+          return parseNDigitsSigned(4, string);
+        }
+        return parseNDigitsSigned(token.length, string);
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCFullYear(value, 0, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["G", "y", "Y", "R", "w", "I", "i", "e", "c", "t", "T"]
+    },
+    Q: {
+      priority: 120,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "Q":
+          case "QQ":
+            return parseNDigits(token.length, string);
+          case "Qo":
+            return match2.ordinalNumber(string, {
+              unit: "quarter"
+            });
+          case "QQQ":
+            return match2.quarter(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.quarter(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "QQQQQ":
+            return match2.quarter(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "QQQQ":
+          default:
+            return match2.quarter(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.quarter(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.quarter(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 4;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMonth((value - 1) * 3, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "q", "M", "L", "w", "I", "d", "D", "i", "e", "c", "t", "T"]
+    },
+    q: {
+      priority: 120,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "q":
+          case "qq":
+            return parseNDigits(token.length, string);
+          case "qo":
+            return match2.ordinalNumber(string, {
+              unit: "quarter"
+            });
+          case "qqq":
+            return match2.quarter(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.quarter(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "qqqqq":
+            return match2.quarter(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "qqqq":
+          default:
+            return match2.quarter(string, {
+              width: "wide",
+              context: "standalone"
+            }) || match2.quarter(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.quarter(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 4;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMonth((value - 1) * 3, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "Q", "M", "L", "w", "I", "d", "D", "i", "e", "c", "t", "T"]
+    },
+    M: {
+      priority: 110,
+      parse: function(string, token, match2, _options) {
+        var valueCallback = function(value) {
+          return value - 1;
+        };
+        switch (token) {
+          case "M":
+            return parseNumericPattern(numericPatterns.month, string, valueCallback);
+          case "MM":
+            return parseNDigits(2, string, valueCallback);
+          case "Mo":
+            return match2.ordinalNumber(string, {
+              unit: "month",
+              valueCallback
+            });
+          case "MMM":
+            return match2.month(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.month(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "MMMMM":
+            return match2.month(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "MMMM":
+          default:
+            return match2.month(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.month(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.month(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 11;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMonth(value, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "q", "Q", "L", "w", "I", "D", "i", "e", "c", "t", "T"]
+    },
+    L: {
+      priority: 110,
+      parse: function(string, token, match2, _options) {
+        var valueCallback = function(value) {
+          return value - 1;
+        };
+        switch (token) {
+          case "L":
+            return parseNumericPattern(numericPatterns.month, string, valueCallback);
+          case "LL":
+            return parseNDigits(2, string, valueCallback);
+          case "Lo":
+            return match2.ordinalNumber(string, {
+              unit: "month",
+              valueCallback
+            });
+          case "LLL":
+            return match2.month(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.month(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "LLLLL":
+            return match2.month(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "LLLL":
+          default:
+            return match2.month(string, {
+              width: "wide",
+              context: "standalone"
+            }) || match2.month(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.month(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 11;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMonth(value, 1);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "q", "Q", "M", "w", "I", "D", "i", "e", "c", "t", "T"]
+    },
+    w: {
+      priority: 100,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "w":
+            return parseNumericPattern(numericPatterns.week, string);
+          case "wo":
+            return match2.ordinalNumber(string, {
+              unit: "week"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 53;
+      },
+      set: function(date, _flags, value, options) {
+        return startOfUTCWeek(setUTCWeek(date, value, options), options);
+      },
+      incompatibleTokens: ["y", "R", "u", "q", "Q", "M", "L", "I", "d", "D", "i", "t", "T"]
+    },
+    I: {
+      priority: 100,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "I":
+            return parseNumericPattern(numericPatterns.week, string);
+          case "Io":
+            return match2.ordinalNumber(string, {
+              unit: "week"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 53;
+      },
+      set: function(date, _flags, value, options) {
+        return startOfUTCISOWeek(setUTCISOWeek(date, value, options), options);
+      },
+      incompatibleTokens: ["y", "Y", "u", "q", "Q", "M", "L", "w", "d", "D", "e", "c", "t", "T"]
+    },
+    d: {
+      priority: 90,
+      subPriority: 1,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "d":
+            return parseNumericPattern(numericPatterns.date, string);
+          case "do":
+            return match2.ordinalNumber(string, {
+              unit: "date"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(date, value, _options) {
+        var year = date.getUTCFullYear();
+        var isLeapYear = isLeapYearIndex(year);
+        var month = date.getUTCMonth();
+        if (isLeapYear) {
+          return value >= 1 && value <= DAYS_IN_MONTH_LEAP_YEAR[month];
+        } else {
+          return value >= 1 && value <= DAYS_IN_MONTH[month];
+        }
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCDate(value);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "q", "Q", "w", "I", "D", "i", "e", "c", "t", "T"]
+    },
+    D: {
+      priority: 90,
+      subPriority: 1,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "D":
+          case "DD":
+            return parseNumericPattern(numericPatterns.dayOfYear, string);
+          case "Do":
+            return match2.ordinalNumber(string, {
+              unit: "date"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(date, value, _options) {
+        var year = date.getUTCFullYear();
+        var isLeapYear = isLeapYearIndex(year);
+        if (isLeapYear) {
+          return value >= 1 && value <= 366;
+        } else {
+          return value >= 1 && value <= 365;
+        }
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMonth(0, value);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["Y", "R", "q", "Q", "M", "L", "w", "I", "d", "E", "i", "e", "c", "t", "T"]
+    },
+    E: {
+      priority: 90,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "E":
+          case "EE":
+          case "EEE":
+            return match2.day(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "EEEEE":
+            return match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "EEEEEE":
+            return match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "EEEE":
+          default:
+            return match2.day(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 6;
+      },
+      set: function(date, _flags, value, options) {
+        date = setUTCDay(date, value, options);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["D", "i", "e", "c", "t", "T"]
+    },
+    e: {
+      priority: 90,
+      parse: function(string, token, match2, options) {
+        var valueCallback = function(value) {
+          var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
+          return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
+        };
+        switch (token) {
+          case "e":
+          case "ee":
+            return parseNDigits(token.length, string, valueCallback);
+          case "eo":
+            return match2.ordinalNumber(string, {
+              unit: "day",
+              valueCallback
+            });
+          case "eee":
+            return match2.day(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "eeeee":
+            return match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "eeeeee":
+            return match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "eeee":
+          default:
+            return match2.day(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 6;
+      },
+      set: function(date, _flags, value, options) {
+        date = setUTCDay(date, value, options);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["y", "R", "u", "q", "Q", "M", "L", "I", "d", "D", "E", "i", "c", "t", "T"]
+    },
+    c: {
+      priority: 90,
+      parse: function(string, token, match2, options) {
+        var valueCallback = function(value) {
+          var wholeWeekDays = Math.floor((value - 1) / 7) * 7;
+          return (value + options.weekStartsOn + 6) % 7 + wholeWeekDays;
+        };
+        switch (token) {
+          case "c":
+          case "cc":
+            return parseNDigits(token.length, string, valueCallback);
+          case "co":
+            return match2.ordinalNumber(string, {
+              unit: "day",
+              valueCallback
+            });
+          case "ccc":
+            return match2.day(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "short",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "ccccc":
+            return match2.day(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "cccccc":
+            return match2.day(string, {
+              width: "short",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+          case "cccc":
+          default:
+            return match2.day(string, {
+              width: "wide",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "abbreviated",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "short",
+              context: "standalone"
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "standalone"
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 6;
+      },
+      set: function(date, _flags, value, options) {
+        date = setUTCDay(date, value, options);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["y", "R", "u", "q", "Q", "M", "L", "I", "d", "D", "E", "i", "e", "t", "T"]
+    },
+    i: {
+      priority: 90,
+      parse: function(string, token, match2, _options) {
+        var valueCallback = function(value) {
+          if (value === 0) {
+            return 7;
+          }
+          return value;
+        };
+        switch (token) {
+          case "i":
+          case "ii":
+            return parseNDigits(token.length, string);
+          case "io":
+            return match2.ordinalNumber(string, {
+              unit: "day"
+            });
+          case "iii":
+            return match2.day(string, {
+              width: "abbreviated",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting",
+              valueCallback
+            });
+          case "iiiii":
+            return match2.day(string, {
+              width: "narrow",
+              context: "formatting",
+              valueCallback
+            });
+          case "iiiiii":
+            return match2.day(string, {
+              width: "short",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting",
+              valueCallback
+            });
+          case "iiii":
+          default:
+            return match2.day(string, {
+              width: "wide",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "abbreviated",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "short",
+              context: "formatting",
+              valueCallback
+            }) || match2.day(string, {
+              width: "narrow",
+              context: "formatting",
+              valueCallback
+            });
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 7;
+      },
+      set: function(date, _flags, value, options) {
+        date = setUTCISODay(date, value, options);
+        date.setUTCHours(0, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["y", "Y", "u", "q", "Q", "M", "L", "w", "d", "D", "E", "e", "c", "t", "T"]
+    },
+    a: {
+      priority: 80,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "a":
+          case "aa":
+          case "aaa":
+            return match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "aaaaa":
+            return match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "aaaa":
+          default:
+            return match2.dayPeriod(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCHours(dayPeriodEnumToHours(value), 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["b", "B", "H", "K", "k", "t", "T"]
+    },
+    b: {
+      priority: 80,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "b":
+          case "bb":
+          case "bbb":
+            return match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "bbbbb":
+            return match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "bbbb":
+          default:
+            return match2.dayPeriod(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCHours(dayPeriodEnumToHours(value), 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["a", "B", "H", "K", "k", "t", "T"]
+    },
+    B: {
+      priority: 80,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "B":
+          case "BB":
+          case "BBB":
+            return match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "BBBBB":
+            return match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+          case "BBBB":
+          default:
+            return match2.dayPeriod(string, {
+              width: "wide",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "abbreviated",
+              context: "formatting"
+            }) || match2.dayPeriod(string, {
+              width: "narrow",
+              context: "formatting"
+            });
+        }
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCHours(dayPeriodEnumToHours(value), 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["a", "b", "t", "T"]
+    },
+    h: {
+      priority: 70,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "h":
+            return parseNumericPattern(numericPatterns.hour12h, string);
+          case "ho":
+            return match2.ordinalNumber(string, {
+              unit: "hour"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 12;
+      },
+      set: function(date, _flags, value, _options) {
+        var isPM = date.getUTCHours() >= 12;
+        if (isPM && value < 12) {
+          date.setUTCHours(value + 12, 0, 0, 0);
+        } else if (!isPM && value === 12) {
+          date.setUTCHours(0, 0, 0, 0);
+        } else {
+          date.setUTCHours(value, 0, 0, 0);
+        }
+        return date;
+      },
+      incompatibleTokens: ["H", "K", "k", "t", "T"]
+    },
+    H: {
+      priority: 70,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "H":
+            return parseNumericPattern(numericPatterns.hour23h, string);
+          case "Ho":
+            return match2.ordinalNumber(string, {
+              unit: "hour"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 23;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCHours(value, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["a", "b", "h", "K", "k", "t", "T"]
+    },
+    K: {
+      priority: 70,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "K":
+            return parseNumericPattern(numericPatterns.hour11h, string);
+          case "Ko":
+            return match2.ordinalNumber(string, {
+              unit: "hour"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 11;
+      },
+      set: function(date, _flags, value, _options) {
+        var isPM = date.getUTCHours() >= 12;
+        if (isPM && value < 12) {
+          date.setUTCHours(value + 12, 0, 0, 0);
+        } else {
+          date.setUTCHours(value, 0, 0, 0);
+        }
+        return date;
+      },
+      incompatibleTokens: ["a", "b", "h", "H", "k", "t", "T"]
+    },
+    k: {
+      priority: 70,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "k":
+            return parseNumericPattern(numericPatterns.hour24h, string);
+          case "ko":
+            return match2.ordinalNumber(string, {
+              unit: "hour"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 1 && value <= 24;
+      },
+      set: function(date, _flags, value, _options) {
+        var hours = value <= 24 ? value % 24 : value;
+        date.setUTCHours(hours, 0, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["a", "b", "h", "H", "K", "t", "T"]
+    },
+    m: {
+      priority: 60,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "m":
+            return parseNumericPattern(numericPatterns.minute, string);
+          case "mo":
+            return match2.ordinalNumber(string, {
+              unit: "minute"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 59;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMinutes(value, 0, 0);
+        return date;
+      },
+      incompatibleTokens: ["t", "T"]
+    },
+    s: {
+      priority: 50,
+      parse: function(string, token, match2, _options) {
+        switch (token) {
+          case "s":
+            return parseNumericPattern(numericPatterns.second, string);
+          case "so":
+            return match2.ordinalNumber(string, {
+              unit: "second"
+            });
+          default:
+            return parseNDigits(token.length, string);
+        }
+      },
+      validate: function(_date, value, _options) {
+        return value >= 0 && value <= 59;
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCSeconds(value, 0);
+        return date;
+      },
+      incompatibleTokens: ["t", "T"]
+    },
+    S: {
+      priority: 30,
+      parse: function(string, token, _match, _options) {
+        var valueCallback = function(value) {
+          return Math.floor(value * Math.pow(10, -token.length + 3));
+        };
+        return parseNDigits(token.length, string, valueCallback);
+      },
+      set: function(date, _flags, value, _options) {
+        date.setUTCMilliseconds(value);
+        return date;
+      },
+      incompatibleTokens: ["t", "T"]
+    },
+    X: {
+      priority: 10,
+      parse: function(string, token, _match, _options) {
+        switch (token) {
+          case "X":
+            return parseTimezonePattern(timezonePatterns.basicOptionalMinutes, string);
+          case "XX":
+            return parseTimezonePattern(timezonePatterns.basic, string);
+          case "XXXX":
+            return parseTimezonePattern(timezonePatterns.basicOptionalSeconds, string);
+          case "XXXXX":
+            return parseTimezonePattern(timezonePatterns.extendedOptionalSeconds, string);
+          case "XXX":
+          default:
+            return parseTimezonePattern(timezonePatterns.extended, string);
+        }
+      },
+      set: function(date, flags, value, _options) {
+        if (flags.timestampIsSet) {
+          return date;
+        }
+        return new Date(date.getTime() - value);
+      },
+      incompatibleTokens: ["t", "T", "x"]
+    },
+    x: {
+      priority: 10,
+      parse: function(string, token, _match, _options) {
+        switch (token) {
+          case "x":
+            return parseTimezonePattern(timezonePatterns.basicOptionalMinutes, string);
+          case "xx":
+            return parseTimezonePattern(timezonePatterns.basic, string);
+          case "xxxx":
+            return parseTimezonePattern(timezonePatterns.basicOptionalSeconds, string);
+          case "xxxxx":
+            return parseTimezonePattern(timezonePatterns.extendedOptionalSeconds, string);
+          case "xxx":
+          default:
+            return parseTimezonePattern(timezonePatterns.extended, string);
+        }
+      },
+      set: function(date, flags, value, _options) {
+        if (flags.timestampIsSet) {
+          return date;
+        }
+        return new Date(date.getTime() - value);
+      },
+      incompatibleTokens: ["t", "T", "X"]
+    },
+    t: {
+      priority: 40,
+      parse: function(string, _token, _match, _options) {
+        return parseAnyDigitsSigned(string);
+      },
+      set: function(_date, _flags, value, _options) {
+        return [new Date(value * 1e3), {
+          timestampIsSet: true
+        }];
+      },
+      incompatibleTokens: "*"
+    },
+    T: {
+      priority: 20,
+      parse: function(string, _token, _match, _options) {
+        return parseAnyDigitsSigned(string);
+      },
+      set: function(_date, _flags, value, _options) {
+        return [new Date(value), {
+          timestampIsSet: true
+        }];
+      },
+      incompatibleTokens: "*"
+    }
+  };
+  var parsers_default = parsers;
+
+  // node_modules/date-fns/esm/parse/index.js
+  var TIMEZONE_UNIT_PRIORITY = 10;
+  var formattingTokensRegExp2 = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g;
+  var longFormattingTokensRegExp2 = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
+  var escapedStringRegExp2 = /^'([^]*?)'?$/;
+  var doubleQuoteRegExp2 = /''/g;
+  var notWhitespaceRegExp = /\S/;
+  var unescapedLatinCharacterRegExp2 = /[a-zA-Z]/;
+  function parse2(dirtyDateString, dirtyFormatString, dirtyReferenceDate, dirtyOptions) {
+    requiredArgs(3, arguments);
+    var dateString = String(dirtyDateString);
+    var formatString = String(dirtyFormatString);
+    var options = dirtyOptions || {};
+    var locale2 = options.locale || en_US_default;
+    if (!locale2.match) {
+      throw new RangeError("locale must contain match property");
+    }
+    var localeFirstWeekContainsDate = locale2.options && locale2.options.firstWeekContainsDate;
+    var defaultFirstWeekContainsDate = localeFirstWeekContainsDate == null ? 1 : toInteger(localeFirstWeekContainsDate);
+    var firstWeekContainsDate = options.firstWeekContainsDate == null ? defaultFirstWeekContainsDate : toInteger(options.firstWeekContainsDate);
+    if (!(firstWeekContainsDate >= 1 && firstWeekContainsDate <= 7)) {
+      throw new RangeError("firstWeekContainsDate must be between 1 and 7 inclusively");
+    }
+    var localeWeekStartsOn = locale2.options && locale2.options.weekStartsOn;
+    var defaultWeekStartsOn = localeWeekStartsOn == null ? 0 : toInteger(localeWeekStartsOn);
+    var weekStartsOn = options.weekStartsOn == null ? defaultWeekStartsOn : toInteger(options.weekStartsOn);
+    if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
+      throw new RangeError("weekStartsOn must be between 0 and 6 inclusively");
+    }
+    if (formatString === "") {
+      if (dateString === "") {
+        return toDate(dirtyReferenceDate);
+      } else {
+        return new Date(NaN);
+      }
+    }
+    var subFnOptions = {
+      firstWeekContainsDate,
+      weekStartsOn,
+      locale: locale2
+    };
+    var setters = [{
+      priority: TIMEZONE_UNIT_PRIORITY,
+      subPriority: -1,
+      set: dateToSystemTimezone,
+      index: 0
+    }];
+    var i;
+    var tokens = formatString.match(longFormattingTokensRegExp2).map(function(substring) {
+      var firstCharacter2 = substring[0];
+      if (firstCharacter2 === "p" || firstCharacter2 === "P") {
+        var longFormatter = longFormatters_default[firstCharacter2];
+        return longFormatter(substring, locale2.formatLong, subFnOptions);
+      }
+      return substring;
+    }).join("").match(formattingTokensRegExp2);
+    var usedTokens = [];
+    for (i = 0; i < tokens.length; i++) {
+      var token = tokens[i];
+      if (!options.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token)) {
+        throwProtectedError(token, formatString, dirtyDateString);
+      }
+      if (!options.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
+        throwProtectedError(token, formatString, dirtyDateString);
+      }
+      var firstCharacter = token[0];
+      var parser = parsers_default[firstCharacter];
+      if (parser) {
+        var incompatibleTokens = parser.incompatibleTokens;
+        if (Array.isArray(incompatibleTokens)) {
+          var incompatibleToken = void 0;
+          for (var _i = 0; _i < usedTokens.length; _i++) {
+            var usedToken = usedTokens[_i].token;
+            if (incompatibleTokens.indexOf(usedToken) !== -1 || usedToken === firstCharacter) {
+              incompatibleToken = usedTokens[_i];
+              break;
+            }
+          }
+          if (incompatibleToken) {
+            throw new RangeError("The format string mustn't contain `".concat(incompatibleToken.fullToken, "` and `").concat(token, "` at the same time"));
+          }
+        } else if (parser.incompatibleTokens === "*" && usedTokens.length) {
+          throw new RangeError("The format string mustn't contain `".concat(token, "` and any other token at the same time"));
+        }
+        usedTokens.push({
+          token: firstCharacter,
+          fullToken: token
+        });
+        var parseResult = parser.parse(dateString, token, locale2.match, subFnOptions);
+        if (!parseResult) {
+          return new Date(NaN);
+        }
+        setters.push({
+          priority: parser.priority,
+          subPriority: parser.subPriority || 0,
+          set: parser.set,
+          validate: parser.validate,
+          value: parseResult.value,
+          index: setters.length
+        });
+        dateString = parseResult.rest;
+      } else {
+        if (firstCharacter.match(unescapedLatinCharacterRegExp2)) {
+          throw new RangeError("Format string contains an unescaped latin alphabet character `" + firstCharacter + "`");
+        }
+        if (token === "''") {
+          token = "'";
+        } else if (firstCharacter === "'") {
+          token = cleanEscapedString2(token);
+        }
+        if (dateString.indexOf(token) === 0) {
+          dateString = dateString.slice(token.length);
+        } else {
+          return new Date(NaN);
+        }
+      }
+    }
+    if (dateString.length > 0 && notWhitespaceRegExp.test(dateString)) {
+      return new Date(NaN);
+    }
+    var uniquePrioritySetters = setters.map(function(setter2) {
+      return setter2.priority;
+    }).sort(function(a, b) {
+      return b - a;
+    }).filter(function(priority, index, array) {
+      return array.indexOf(priority) === index;
+    }).map(function(priority) {
+      return setters.filter(function(setter2) {
+        return setter2.priority === priority;
+      }).sort(function(a, b) {
+        return b.subPriority - a.subPriority;
+      });
+    }).map(function(setterArray) {
+      return setterArray[0];
+    });
+    var date = toDate(dirtyReferenceDate);
+    if (isNaN(date)) {
+      return new Date(NaN);
+    }
+    var utcDate = subMilliseconds(date, getTimezoneOffsetInMilliseconds(date));
+    var flags = {};
+    for (i = 0; i < uniquePrioritySetters.length; i++) {
+      var setter = uniquePrioritySetters[i];
+      if (setter.validate && !setter.validate(utcDate, setter.value, subFnOptions)) {
+        return new Date(NaN);
+      }
+      var result = setter.set(utcDate, flags, setter.value, subFnOptions);
+      if (result[0]) {
+        utcDate = result[0];
+        assign(flags, result[1]);
+      } else {
+        utcDate = result;
+      }
+    }
+    return utcDate;
+  }
+  function dateToSystemTimezone(date, flags) {
+    if (flags.timestampIsSet) {
+      return date;
+    }
+    var convertedDate = new Date(0);
+    convertedDate.setFullYear(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    convertedDate.setHours(date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+    return convertedDate;
+  }
+  function cleanEscapedString2(input) {
+    return input.match(escapedStringRegExp2)[1].replace(doubleQuoteRegExp2, "'");
+  }
+
+  // node_modules/date-fns/esm/startOfHour/index.js
+  function startOfHour(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setMinutes(0, 0, 0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/startOfSecond/index.js
+  function startOfSecond(dirtyDate) {
+    requiredArgs(1, arguments);
+    var date = toDate(dirtyDate);
+    date.setMilliseconds(0);
+    return date;
+  }
+
+  // node_modules/date-fns/esm/parseISO/index.js
+  var MILLISECONDS_IN_HOUR3 = 36e5;
+  var MILLISECONDS_IN_MINUTE3 = 6e4;
+  var DEFAULT_ADDITIONAL_DIGITS = 2;
+  var patterns = {
+    dateTimeDelimiter: /[T ]/,
+    timeZoneDelimiter: /[Z ]/i,
+    timezone: /([Z+-].*)$/
+  };
+  var dateRegex = /^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/;
+  var timeRegex = /^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/;
+  var timezoneRegex = /^([+-])(\d{2})(?::?(\d{2}))?$/;
+  function parseISO(argument, dirtyOptions) {
+    requiredArgs(1, arguments);
+    var options = dirtyOptions || {};
+    var additionalDigits = options.additionalDigits == null ? DEFAULT_ADDITIONAL_DIGITS : toInteger(options.additionalDigits);
+    if (additionalDigits !== 2 && additionalDigits !== 1 && additionalDigits !== 0) {
+      throw new RangeError("additionalDigits must be 0, 1 or 2");
+    }
+    if (!(typeof argument === "string" || Object.prototype.toString.call(argument) === "[object String]")) {
+      return new Date(NaN);
+    }
+    var dateStrings = splitDateString(argument);
+    var date;
+    if (dateStrings.date) {
+      var parseYearResult = parseYear(dateStrings.date, additionalDigits);
+      date = parseDate(parseYearResult.restDateString, parseYearResult.year);
+    }
+    if (isNaN(date) || !date) {
+      return new Date(NaN);
+    }
+    var timestamp = date.getTime();
+    var time = 0;
+    var offset;
+    if (dateStrings.time) {
+      time = parseTime(dateStrings.time);
+      if (isNaN(time) || time === null) {
+        return new Date(NaN);
+      }
+    }
+    if (dateStrings.timezone) {
+      offset = parseTimezone(dateStrings.timezone);
+      if (isNaN(offset)) {
+        return new Date(NaN);
+      }
+    } else {
+      var dirtyDate = new Date(timestamp + time);
+      var result = new Date(0);
+      result.setFullYear(dirtyDate.getUTCFullYear(), dirtyDate.getUTCMonth(), dirtyDate.getUTCDate());
+      result.setHours(dirtyDate.getUTCHours(), dirtyDate.getUTCMinutes(), dirtyDate.getUTCSeconds(), dirtyDate.getUTCMilliseconds());
+      return result;
+    }
+    return new Date(timestamp + time + offset);
+  }
+  function splitDateString(dateString) {
+    var dateStrings = {};
+    var array = dateString.split(patterns.dateTimeDelimiter);
+    var timeString;
+    if (array.length > 2) {
+      return dateStrings;
+    }
+    if (/:/.test(array[0])) {
+      dateStrings.date = null;
+      timeString = array[0];
+    } else {
+      dateStrings.date = array[0];
+      timeString = array[1];
+      if (patterns.timeZoneDelimiter.test(dateStrings.date)) {
+        dateStrings.date = dateString.split(patterns.timeZoneDelimiter)[0];
+        timeString = dateString.substr(dateStrings.date.length, dateString.length);
+      }
+    }
+    if (timeString) {
+      var token = patterns.timezone.exec(timeString);
+      if (token) {
+        dateStrings.time = timeString.replace(token[1], "");
+        dateStrings.timezone = token[1];
+      } else {
+        dateStrings.time = timeString;
+      }
+    }
+    return dateStrings;
+  }
+  function parseYear(dateString, additionalDigits) {
+    var regex = new RegExp("^(?:(\\d{4}|[+-]\\d{" + (4 + additionalDigits) + "})|(\\d{2}|[+-]\\d{" + (2 + additionalDigits) + "})$)");
+    var captures = dateString.match(regex);
+    if (!captures)
+      return {
+        year: null
+      };
+    var year = captures[1] && parseInt(captures[1]);
+    var century = captures[2] && parseInt(captures[2]);
+    return {
+      year: century == null ? year : century * 100,
+      restDateString: dateString.slice((captures[1] || captures[2]).length)
+    };
+  }
+  function parseDate(dateString, year) {
+    if (year === null)
+      return null;
+    var captures = dateString.match(dateRegex);
+    if (!captures)
+      return null;
+    var isWeekDate = !!captures[4];
+    var dayOfYear = parseDateUnit(captures[1]);
+    var month = parseDateUnit(captures[2]) - 1;
+    var day = parseDateUnit(captures[3]);
+    var week = parseDateUnit(captures[4]);
+    var dayOfWeek = parseDateUnit(captures[5]) - 1;
+    if (isWeekDate) {
+      if (!validateWeekDate(year, week, dayOfWeek)) {
+        return new Date(NaN);
+      }
+      return dayOfISOWeekYear(year, week, dayOfWeek);
+    } else {
+      var date = new Date(0);
+      if (!validateDate(year, month, day) || !validateDayOfYearDate(year, dayOfYear)) {
+        return new Date(NaN);
+      }
+      date.setUTCFullYear(year, month, Math.max(dayOfYear, day));
+      return date;
+    }
+  }
+  function parseDateUnit(value) {
+    return value ? parseInt(value) : 1;
+  }
+  function parseTime(timeString) {
+    var captures = timeString.match(timeRegex);
+    if (!captures)
+      return null;
+    var hours = parseTimeUnit(captures[1]);
+    var minutes = parseTimeUnit(captures[2]);
+    var seconds = parseTimeUnit(captures[3]);
+    if (!validateTime(hours, minutes, seconds)) {
+      return NaN;
+    }
+    return hours * MILLISECONDS_IN_HOUR3 + minutes * MILLISECONDS_IN_MINUTE3 + seconds * 1e3;
+  }
+  function parseTimeUnit(value) {
+    return value && parseFloat(value.replace(",", ".")) || 0;
+  }
+  function parseTimezone(timezoneString) {
+    if (timezoneString === "Z")
+      return 0;
+    var captures = timezoneString.match(timezoneRegex);
+    if (!captures)
+      return 0;
+    var sign2 = captures[1] === "+" ? -1 : 1;
+    var hours = parseInt(captures[2]);
+    var minutes = captures[3] && parseInt(captures[3]) || 0;
+    if (!validateTimezone(hours, minutes)) {
+      return NaN;
+    }
+    return sign2 * (hours * MILLISECONDS_IN_HOUR3 + minutes * MILLISECONDS_IN_MINUTE3);
+  }
+  function dayOfISOWeekYear(isoWeekYear, week, day) {
+    var date = new Date(0);
+    date.setUTCFullYear(isoWeekYear, 0, 4);
+    var fourthOfJanuaryDay = date.getUTCDay() || 7;
+    var diff = (week - 1) * 7 + day + 1 - fourthOfJanuaryDay;
+    date.setUTCDate(date.getUTCDate() + diff);
+    return date;
+  }
+  var daysInMonths = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  function isLeapYearIndex2(year) {
+    return year % 400 === 0 || year % 4 === 0 && year % 100;
+  }
+  function validateDate(year, month, date) {
+    return month >= 0 && month <= 11 && date >= 1 && date <= (daysInMonths[month] || (isLeapYearIndex2(year) ? 29 : 28));
+  }
+  function validateDayOfYearDate(year, dayOfYear) {
+    return dayOfYear >= 1 && dayOfYear <= (isLeapYearIndex2(year) ? 366 : 365);
+  }
+  function validateWeekDate(_year, week, day) {
+    return week >= 1 && week <= 53 && day >= 0 && day <= 6;
+  }
+  function validateTime(hours, minutes, seconds) {
+    if (hours === 24) {
+      return minutes === 0 && seconds === 0;
+    }
+    return seconds >= 0 && seconds < 60 && minutes >= 0 && minutes < 60 && hours >= 0 && hours < 25;
+  }
+  function validateTimezone(_hours, minutes) {
+    return minutes >= 0 && minutes <= 59;
+  }
+
+  // node_modules/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.esm.js
+  var FORMATS = {
+    datetime: "MMM d, yyyy, h:mm:ss aaaa",
+    millisecond: "h:mm:ss.SSS aaaa",
+    second: "h:mm:ss aaaa",
+    minute: "h:mm aaaa",
+    hour: "ha",
+    day: "MMM d",
+    week: "PP",
+    month: "MMM yyyy",
+    quarter: "qqq - yyyy",
+    year: "yyyy"
+  };
+  adapters._date.override({
+    _id: "date-fns",
+    formats: function() {
+      return FORMATS;
+    },
+    parse: function(value, fmt) {
+      if (value === null || typeof value === "undefined") {
+        return null;
+      }
+      const type = typeof value;
+      if (type === "number" || value instanceof Date) {
+        value = toDate(value);
+      } else if (type === "string") {
+        if (typeof fmt === "string") {
+          value = parse2(value, fmt, new Date(), this.options);
+        } else {
+          value = parseISO(value, this.options);
+        }
+      }
+      return isValid(value) ? value.getTime() : null;
+    },
+    format: function(time, fmt) {
+      return format(time, fmt, this.options);
+    },
+    add: function(time, amount, unit) {
+      switch (unit) {
+        case "millisecond":
+          return addMilliseconds(time, amount);
+        case "second":
+          return addSeconds(time, amount);
+        case "minute":
+          return addMinutes(time, amount);
+        case "hour":
+          return addHours(time, amount);
+        case "day":
+          return addDays(time, amount);
+        case "week":
+          return addWeeks(time, amount);
+        case "month":
+          return addMonths(time, amount);
+        case "quarter":
+          return addQuarters(time, amount);
+        case "year":
+          return addYears(time, amount);
+        default:
+          return time;
+      }
+    },
+    diff: function(max, min, unit) {
+      switch (unit) {
+        case "millisecond":
+          return differenceInMilliseconds(max, min);
+        case "second":
+          return differenceInSeconds(max, min);
+        case "minute":
+          return differenceInMinutes(max, min);
+        case "hour":
+          return differenceInHours(max, min);
+        case "day":
+          return differenceInDays(max, min);
+        case "week":
+          return differenceInWeeks(max, min);
+        case "month":
+          return differenceInMonths(max, min);
+        case "quarter":
+          return differenceInQuarters(max, min);
+        case "year":
+          return differenceInYears(max, min);
+        default:
+          return 0;
+      }
+    },
+    startOf: function(time, unit, weekday) {
+      switch (unit) {
+        case "second":
+          return startOfSecond(time);
+        case "minute":
+          return startOfMinute(time);
+        case "hour":
+          return startOfHour(time);
+        case "day":
+          return startOfDay(time);
+        case "week":
+          return startOfWeek(time);
+        case "isoWeek":
+          return startOfWeek(time, { weekStartsOn: +weekday });
+        case "month":
+          return startOfMonth(time);
+        case "quarter":
+          return startOfQuarter(time);
+        case "year":
+          return startOfYear(time);
+        default:
+          return time;
+      }
+    },
+    endOf: function(time, unit) {
+      switch (unit) {
+        case "second":
+          return endOfSecond(time);
+        case "minute":
+          return endOfMinute(time);
+        case "hour":
+          return endOfHour(time);
+        case "day":
+          return endOfDay(time);
+        case "week":
+          return endOfWeek(time);
+        case "month":
+          return endOfMonth(time);
+        case "quarter":
+          return endOfQuarter(time);
+        case "year":
+          return endOfYear(time);
+        default:
+          return time;
+      }
+    }
+  });
+
+  // js/results.json
+  var results_default = [{ label: "France", data: [{ x: "2020-01-22T00:00:00Z", y: 0 }, { x: "2020-01-23T00:00:00Z", y: 0 }, { x: "2020-01-24T00:00:00Z", y: 0 }, { x: "2020-01-25T00:00:00Z", y: 0 }, { x: "2020-01-26T00:00:00Z", y: 0 }, { x: "2020-01-27T00:00:00Z", y: 0 }, { x: "2020-01-28T00:00:00Z", y: 0 }, { x: "2020-01-29T00:00:00Z", y: 0 }, { x: "2020-01-30T00:00:00Z", y: 0 }, { x: "2020-01-31T00:00:00Z", y: 0 }, { x: "2020-02-01T00:00:00Z", y: 0 }, { x: "2020-02-02T00:00:00Z", y: 0 }, { x: "2020-02-03T00:00:00Z", y: 0 }, { x: "2020-02-04T00:00:00Z", y: 0 }, { x: "2020-02-05T00:00:00Z", y: 0 }, { x: "2020-02-06T00:00:00Z", y: 0 }, { x: "2020-02-07T00:00:00Z", y: 0 }, { x: "2020-02-08T00:00:00Z", y: 0 }, { x: "2020-02-09T00:00:00Z", y: 0 }, { x: "2020-02-10T00:00:00Z", y: 0 }, { x: "2020-02-11T00:00:00Z", y: 0 }, { x: "2020-02-12T00:00:00Z", y: 0 }, { x: "2020-02-13T00:00:00Z", y: 0 }, { x: "2020-02-14T00:00:00Z", y: 0 }, { x: "2020-02-15T00:00:00Z", y: 1 }, { x: "2020-02-16T00:00:00Z", y: 1 }, { x: "2020-02-17T00:00:00Z", y: 1 }, { x: "2020-02-18T00:00:00Z", y: 1 }, { x: "2020-02-19T00:00:00Z", y: 1 }, { x: "2020-02-20T00:00:00Z", y: 1 }, { x: "2020-02-21T00:00:00Z", y: 1 }, { x: "2020-02-22T00:00:00Z", y: 1 }, { x: "2020-02-23T00:00:00Z", y: 1 }, { x: "2020-02-24T00:00:00Z", y: 1 }, { x: "2020-02-25T00:00:00Z", y: 1 }, { x: "2020-02-26T00:00:00Z", y: 2 }, { x: "2020-02-27T00:00:00Z", y: 2 }, { x: "2020-02-28T00:00:00Z", y: 2 }, { x: "2020-02-29T00:00:00Z", y: 2 }, { x: "2020-03-01T00:00:00Z", y: 2 }, { x: "2020-03-02T00:00:00Z", y: 3 }, { x: "2020-03-03T00:00:00Z", y: 4 }, { x: "2020-03-04T00:00:00Z", y: 4 }, { x: "2020-03-05T00:00:00Z", y: 7 }, { x: "2020-03-06T00:00:00Z", y: 9 }, { x: "2020-03-07T00:00:00Z", y: 16 }, { x: "2020-03-08T00:00:00Z", y: 19 }, { x: "2020-03-09T00:00:00Z", y: 25 }, { x: "2020-03-10T00:00:00Z", y: 33 }, { x: "2020-03-11T00:00:00Z", y: 48 }, { x: "2020-03-12T00:00:00Z", y: 48 }, { x: "2020-03-13T00:00:00Z", y: 79 }, { x: "2020-03-14T00:00:00Z", y: 91 }, { x: "2020-03-15T00:00:00Z", y: 91 }, { x: "2020-03-16T00:00:00Z", y: 149 }, { x: "2020-03-17T00:00:00Z", y: 149 }, { x: "2020-03-18T00:00:00Z", y: 149 }, { x: "2020-03-19T00:00:00Z", y: 244 }, { x: "2020-03-20T00:00:00Z", y: 451 }, { x: "2020-03-21T00:00:00Z", y: 563 }, { x: "2020-03-22T00:00:00Z", y: 676 }, { x: "2020-03-23T00:00:00Z", y: 862 }, { x: "2020-03-24T00:00:00Z", y: 1102 }, { x: "2020-03-25T00:00:00Z", y: 1333 }, { x: "2020-03-26T00:00:00Z", y: 1697 }, { x: "2020-03-27T00:00:00Z", y: 1996 }, { x: "2020-03-28T00:00:00Z", y: 2314 }, { x: "2020-03-29T00:00:00Z", y: 2608 }, { x: "2020-03-30T00:00:00Z", y: 3025 }, { x: "2020-03-31T00:00:00Z", y: 3526 }, { x: "2020-04-01T00:00:00Z", y: 4779 }, { x: "2020-04-02T00:00:00Z", y: 5388 }, { x: "2020-04-03T00:00:00Z", y: 6510 }, { x: "2020-04-04T00:00:00Z", y: 7562 }, { x: "2020-04-05T00:00:00Z", y: 8081 }, { x: "2020-04-06T00:00:00Z", y: 8914 }, { x: "2020-04-07T00:00:00Z", y: 10330 }, { x: "2020-04-08T00:00:00Z", y: 10874 }, { x: "2020-04-09T00:00:00Z", y: 12214 }, { x: "2020-04-10T00:00:00Z", y: 13199 }, { x: "2020-04-11T00:00:00Z", y: 13835 }, { x: "2020-04-12T00:00:00Z", y: 14396 }, { x: "2020-04-13T00:00:00Z", y: 14969 }, { x: "2020-04-14T00:00:00Z", y: 15712 }, { x: "2020-04-15T00:00:00Z", y: 17150 }, { x: "2020-04-16T00:00:00Z", y: 17903 }, { x: "2020-04-17T00:00:00Z", y: 18664 }, { x: "2020-04-18T00:00:00Z", y: 19305 }, { x: "2020-04-19T00:00:00Z", y: 19694 }, { x: "2020-04-20T00:00:00Z", y: 20241 }, { x: "2020-04-21T00:00:00Z", y: 20769 }, { x: "2020-04-22T00:00:00Z", y: 21313 }, { x: "2020-04-23T00:00:00Z", y: 21829 }, { x: "2020-04-24T00:00:00Z", y: 22218 }, { x: "2020-04-25T00:00:00Z", y: 22587 }, { x: "2020-04-26T00:00:00Z", y: 22830 }, { x: "2020-04-27T00:00:00Z", y: 23267 }, { x: "2020-04-28T00:00:00Z", y: 23634 }, { x: "2020-04-29T00:00:00Z", y: 24060 }, { x: "2020-04-30T00:00:00Z", y: 24349 }, { x: "2020-05-01T00:00:00Z", y: 24566 }, { x: "2020-05-02T00:00:00Z", y: 24763 }, { x: "2020-05-03T00:00:00Z", y: 24898 }, { x: "2020-05-04T00:00:00Z", y: 25204 }, { x: "2020-05-05T00:00:00Z", y: 25537 }, { x: "2020-05-06T00:00:00Z", y: 25812 }, { x: "2020-05-07T00:00:00Z", y: 25991 }, { x: "2020-05-08T00:00:00Z", y: 26233 }, { x: "2020-05-09T00:00:00Z", y: 26313 }, { x: "2020-05-10T00:00:00Z", y: 26383 }, { x: "2020-05-11T00:00:00Z", y: 26646 }, { x: "2020-05-12T00:00:00Z", y: 26994 }, { x: "2020-05-13T00:00:00Z", y: 27079 }, { x: "2020-05-14T00:00:00Z", y: 27430 }, { x: "2020-05-15T00:00:00Z", y: 27532 }, { x: "2020-05-16T00:00:00Z", y: 27630 }, { x: "2020-05-17T00:00:00Z", y: 28113 }, { x: "2020-05-18T00:00:00Z", y: 28242 }, { x: "2020-05-19T00:00:00Z", y: 28025 }, { x: "2020-05-20T00:00:00Z", y: 28136 }, { x: "2020-05-21T00:00:00Z", y: 28218 }, { x: "2020-05-22T00:00:00Z", y: 28366 }, { x: "2020-05-23T00:00:00Z", y: 28452 }, { x: "2020-05-24T00:00:00Z", y: 28372 }, { x: "2020-05-25T00:00:00Z", y: 28461 }, { x: "2020-05-26T00:00:00Z", y: 28598 }, { x: "2020-05-27T00:00:00Z", y: 28599 }, { x: "2020-05-28T00:00:00Z", y: 28666 }, { x: "2020-05-29T00:00:00Z", y: 28717 }, { x: "2020-05-30T00:00:00Z", y: 28774 }, { x: "2020-05-31T00:00:00Z", y: 28805 }, { x: "2020-06-01T00:00:00Z", y: 28837 }, { x: "2020-06-02T00:00:00Z", y: 28943 }, { x: "2020-06-03T00:00:00Z", y: 29024 }, { x: "2020-06-04T00:00:00Z", y: 29069 }, { x: "2020-06-05T00:00:00Z", y: 29114 }, { x: "2020-06-06T00:00:00Z", y: 29145 }, { x: "2020-06-07T00:00:00Z", y: 29158 }, { x: "2020-06-08T00:00:00Z", y: 29213 }, { x: "2020-06-09T00:00:00Z", y: 29301 }, { x: "2020-06-10T00:00:00Z", y: 29322 }, { x: "2020-06-11T00:00:00Z", y: 29349 }, { x: "2020-06-12T00:00:00Z", y: 29377 }, { x: "2020-06-13T00:00:00Z", y: 29401 }, { x: "2020-06-14T00:00:00Z", y: 29411 }, { x: "2020-06-15T00:00:00Z", y: 29439 }, { x: "2020-06-16T00:00:00Z", y: 29553 }, { x: "2020-06-17T00:00:00Z", y: 29578 }, { x: "2020-06-18T00:00:00Z", y: 29606 }, { x: "2020-06-19T00:00:00Z", y: 29620 }, { x: "2020-06-20T00:00:00Z", y: 29638 }, { x: "2020-06-21T00:00:00Z", y: 29644 }, { x: "2020-06-22T00:00:00Z", y: 29668 }, { x: "2020-06-23T00:00:00Z", y: 29722 }, { x: "2020-06-24T00:00:00Z", y: 29735 }, { x: "2020-06-25T00:00:00Z", y: 29754 }, { x: "2020-06-26T00:00:00Z", y: 29780 }, { x: "2020-06-27T00:00:00Z", y: 29781 }, { x: "2020-06-28T00:00:00Z", y: 29781 }, { x: "2020-06-29T00:00:00Z", y: 29816 }, { x: "2020-06-30T00:00:00Z", y: 29846 }, { x: "2020-07-01T00:00:00Z", y: 29865 }, { x: "2020-07-02T00:00:00Z", y: 29878 }, { x: "2020-07-03T00:00:00Z", y: 29896 }, { x: "2020-07-04T00:00:00Z", y: 29896 }, { x: "2020-07-05T00:00:00Z", y: 29895 }, { x: "2020-07-06T00:00:00Z", y: 29925 }, { x: "2020-07-07T00:00:00Z", y: 29936 }, { x: "2020-07-08T00:00:00Z", y: 29967 }, { x: "2020-07-09T00:00:00Z", y: 29983 }, { x: "2020-07-10T00:00:00Z", y: 30009 }, { x: "2020-07-11T00:00:00Z", y: 30012 }, { x: "2020-07-12T00:00:00Z", y: 30012 }, { x: "2020-07-13T00:00:00Z", y: 30035 }, { x: "2020-07-14T00:00:00Z", y: 30037 }, { x: "2020-07-15T00:00:00Z", y: 30125 }, { x: "2020-07-16T00:00:00Z", y: 30142 }, { x: "2020-07-17T00:00:00Z", y: 30155 }, { x: "2020-07-18T00:00:00Z", y: 30158 }, { x: "2020-07-19T00:00:00Z", y: 30158 }, { x: "2020-07-20T00:00:00Z", y: 30182 }, { x: "2020-07-21T00:00:00Z", y: 30169 }, { x: "2020-07-22T00:00:00Z", y: 30175 }, { x: "2020-07-23T00:00:00Z", y: 30186 }, { x: "2020-07-24T00:00:00Z", y: 30196 }, { x: "2020-07-25T00:00:00Z", y: 30196 }, { x: "2020-07-26T00:00:00Z", y: 30196 }, { x: "2020-07-27T00:00:00Z", y: 30214 }, { x: "2020-07-28T00:00:00Z", y: 30227 }, { x: "2020-07-29T00:00:00Z", y: 30241 }, { x: "2020-07-30T00:00:00Z", y: 30257 }, { x: "2020-07-31T00:00:00Z", y: 30268 }, { x: "2020-08-01T00:00:00Z", y: 30268 }, { x: "2020-08-02T00:00:00Z", y: 30268 }, { x: "2020-08-03T00:00:00Z", y: 30298 }, { x: "2020-08-04T00:00:00Z", y: 30300 }, { x: "2020-08-05T00:00:00Z", y: 30311 }, { x: "2020-08-06T00:00:00Z", y: 30315 }, { x: "2020-08-07T00:00:00Z", y: 30328 }, { x: "2020-08-08T00:00:00Z", y: 30329 }, { x: "2020-08-09T00:00:00Z", y: 30329 }, { x: "2020-08-10T00:00:00Z", y: 30344 }, { x: "2020-08-11T00:00:00Z", y: 30357 }, { x: "2020-08-12T00:00:00Z", y: 30376 }, { x: "2020-08-13T00:00:00Z", y: 30393 }, { x: "2020-08-14T00:00:00Z", y: 30412 }, { x: "2020-08-15T00:00:00Z", y: 30413 }, { x: "2020-08-16T00:00:00Z", y: 30415 }, { x: "2020-08-17T00:00:00Z", y: 30434 }, { x: "2020-08-18T00:00:00Z", y: 30456 }, { x: "2020-08-19T00:00:00Z", y: 30474 }, { x: "2020-08-20T00:00:00Z", y: 30485 }, { x: "2020-08-21T00:00:00Z", y: 30509 }, { x: "2020-08-22T00:00:00Z", y: 30518 }, { x: "2020-08-23T00:00:00Z", y: 30518 }, { x: "2020-08-24T00:00:00Z", y: 30534 }, { x: "2020-08-25T00:00:00Z", y: 30553 }, { x: "2020-08-26T00:00:00Z", y: 30553 }, { x: "2020-08-27T00:00:00Z", y: 30588 }, { x: "2020-08-28T00:00:00Z", y: 30606 }, { x: "2020-08-29T00:00:00Z", y: 30612 }, { x: "2020-08-30T00:00:00Z", y: 30615 }, { x: "2020-08-31T00:00:00Z", y: 30646 }, { x: "2020-09-01T00:00:00Z", y: 30673 }, { x: "2020-09-02T00:00:00Z", y: 30699 }, { x: "2020-09-03T00:00:00Z", y: 30716 }, { x: "2020-09-04T00:00:00Z", y: 30696 }, { x: "2020-09-05T00:00:00Z", y: 30708 }, { x: "2020-09-06T00:00:00Z", y: 30712 }, { x: "2020-09-07T00:00:00Z", y: 30735 }, { x: "2020-09-08T00:00:00Z", y: 30773 }, { x: "2020-09-09T00:00:00Z", y: 30805 }, { x: "2020-09-10T00:00:00Z", y: 30824 }, { x: "2020-09-11T00:00:00Z", y: 30906 }, { x: "2020-09-12T00:00:00Z", y: 30924 }, { x: "2020-09-13T00:00:00Z", y: 30929 }, { x: "2020-09-14T00:00:00Z", y: 30963 }, { x: "2020-09-15T00:00:00Z", y: 31013 }, { x: "2020-09-16T00:00:00Z", y: 31061 }, { x: "2020-09-17T00:00:00Z", y: 31108 }, { x: "2020-09-18T00:00:00Z", y: 31262 }, { x: "2020-09-19T00:00:00Z", y: 31287 }, { x: "2020-09-20T00:00:00Z", y: 31298 }, { x: "2020-09-21T00:00:00Z", y: 31351 }, { x: "2020-09-22T00:00:00Z", y: 31430 }, { x: "2020-09-23T00:00:00Z", y: 31476 }, { x: "2020-09-24T00:00:00Z", y: 31524 }, { x: "2020-09-25T00:00:00Z", y: 31675 }, { x: "2020-09-26T00:00:00Z", y: 31714 }, { x: "2020-09-27T00:00:00Z", y: 31741 }, { x: "2020-09-28T00:00:00Z", y: 31825 }, { x: "2020-09-29T00:00:00Z", y: 31898 }, { x: "2020-09-30T00:00:00Z", y: 31978 }, { x: "2020-10-01T00:00:00Z", y: 32035 }, { x: "2020-10-02T00:00:00Z", y: 32171 }, { x: "2020-10-03T00:00:00Z", y: 32196 }, { x: "2020-10-04T00:00:00Z", y: 32228 }, { x: "2020-10-05T00:00:00Z", y: 32299 }, { x: "2020-10-06T00:00:00Z", y: 32386 }, { x: "2020-10-07T00:00:00Z", y: 32466 }, { x: "2020-10-08T00:00:00Z", y: 32539 }, { x: "2020-10-09T00:00:00Z", y: 32649 }, { x: "2020-10-10T00:00:00Z", y: 32684 }, { x: "2020-10-11T00:00:00Z", y: 32730 }, { x: "2020-10-12T00:00:00Z", y: 32827 }, { x: "2020-10-13T00:00:00Z", y: 32955 }, { x: "2020-10-14T00:00:00Z", y: 33061 }, { x: "2020-10-15T00:00:00Z", y: 33146 }, { x: "2020-10-16T00:00:00Z", y: 33325 }, { x: "2020-10-17T00:00:00Z", y: 33398 }, { x: "2020-10-18T00:00:00Z", y: 33483 }, { x: "2020-10-19T00:00:00Z", y: 33631 }, { x: "2020-10-20T00:00:00Z", y: 33912 }, { x: "2020-10-21T00:00:00Z", y: 34080 }, { x: "2020-10-22T00:00:00Z", y: 34234 }, { x: "2020-10-23T00:00:00Z", y: 34534 }, { x: "2020-10-24T00:00:00Z", y: 34670 }, { x: "2020-10-25T00:00:00Z", y: 34649 }, { x: "2020-10-26T00:00:00Z", y: 35038 }, { x: "2020-10-27T00:00:00Z", y: 35566 }, { x: "2020-10-28T00:00:00Z", y: 35825 }, { x: "2020-10-29T00:00:00Z", y: 36058 }, { x: "2020-10-30T00:00:00Z", y: 36605 }, { x: "2020-10-31T00:00:00Z", y: 36827 }, { x: "2020-11-01T00:00:00Z", y: 37058 }, { x: "2020-11-02T00:00:00Z", y: 37486 }, { x: "2020-11-03T00:00:00Z", y: 38765 }, { x: "2020-11-04T00:00:00Z", y: 38731 }, { x: "2020-11-05T00:00:00Z", y: 39088 }, { x: "2020-11-06T00:00:00Z", y: 39917 }, { x: "2020-11-07T00:00:00Z", y: 40220 }, { x: "2020-11-08T00:00:00Z", y: 40490 }, { x: "2020-11-09T00:00:00Z", y: 41050 }, { x: "2020-11-10T00:00:00Z", y: 42281 }, { x: "2020-11-11T00:00:00Z", y: 42609 }, { x: "2020-11-12T00:00:00Z", y: 43024 }, { x: "2020-11-13T00:00:00Z", y: 43957 }, { x: "2020-11-14T00:00:00Z", y: 44310 }, { x: "2020-11-15T00:00:00Z", y: 44613 }, { x: "2020-11-16T00:00:00Z", y: 45124 }, { x: "2020-11-17T00:00:00Z", y: 46350 }, { x: "2020-11-18T00:00:00Z", y: 46781 }, { x: "2020-11-19T00:00:00Z", y: 47198 }, { x: "2020-11-20T00:00:00Z", y: 48339 }, { x: "2020-11-21T00:00:00Z", y: 48591 }, { x: "2020-11-22T00:00:00Z", y: 48805 }, { x: "2020-11-23T00:00:00Z", y: 49311 }, { x: "2020-11-24T00:00:00Z", y: 50322 }, { x: "2020-11-25T00:00:00Z", y: 50710 }, { x: "2020-11-26T00:00:00Z", y: 51041 }, { x: "2020-11-27T00:00:00Z", y: 52e3 }, { x: "2020-11-28T00:00:00Z", y: 52212 }, { x: "2020-11-29T00:00:00Z", y: 52410 }, { x: "2020-11-30T00:00:00Z", y: 52818 }, { x: "2020-12-01T00:00:00Z", y: 53595 }, { x: "2020-12-02T00:00:00Z", y: 53906 }, { x: "2020-12-03T00:00:00Z", y: 54230 }, { x: "2020-12-04T00:00:00Z", y: 54860 }, { x: "2020-12-05T00:00:00Z", y: 55072 }, { x: "2020-12-06T00:00:00Z", y: 55246 }, { x: "2020-12-07T00:00:00Z", y: 55612 }, { x: "2020-12-08T00:00:00Z", y: 56450 }, { x: "2020-12-09T00:00:00Z", y: 56747 }, { x: "2020-12-10T00:00:00Z", y: 57043 }, { x: "2020-12-11T00:00:00Z", y: 57671 }, { x: "2020-12-12T00:00:00Z", y: 57864 }, { x: "2020-12-13T00:00:00Z", y: 58014 }, { x: "2020-12-14T00:00:00Z", y: 58390 }, { x: "2020-12-15T00:00:00Z", y: 59181 }, { x: "2020-12-16T00:00:00Z", y: 59471 }, { x: "2020-12-17T00:00:00Z", y: 59732 }, { x: "2020-12-18T00:00:00Z", y: 60344 }, { x: "2020-12-19T00:00:00Z", y: 60533 }, { x: "2020-12-20T00:00:00Z", y: 60664 }, { x: "2020-12-21T00:00:00Z", y: 61018 }, { x: "2020-12-22T00:00:00Z", y: 61820 }, { x: "2020-12-23T00:00:00Z", y: 62097 }, { x: "2020-12-24T00:00:00Z", y: 62388 }, { x: "2020-12-25T00:00:00Z", y: 62547 }, { x: "2020-12-26T00:00:00Z", y: 62693 }, { x: "2020-12-27T00:00:00Z", y: 62866 }, { x: "2020-12-28T00:00:00Z", y: 63234 }, { x: "2020-12-29T00:00:00Z", y: 64203 }, { x: "2020-12-30T00:00:00Z", y: 64507 }, { x: "2020-12-31T00:00:00Z", y: 64758 }, { x: "2021-01-01T00:00:00Z", y: 64891 }, { x: "2021-01-02T00:00:00Z", y: 65047 }, { x: "2021-01-03T00:00:00Z", y: 65163 }, { x: "2021-01-04T00:00:00Z", y: 65548 }, { x: "2021-01-05T00:00:00Z", y: 66416 }, { x: "2021-01-06T00:00:00Z", y: 66698 }, { x: "2021-01-07T00:00:00Z", y: 66974 }, { x: "2021-01-08T00:00:00Z", y: 67565 }, { x: "2021-01-09T00:00:00Z", y: 67733 }, { x: "2021-01-10T00:00:00Z", y: 67884 }, { x: "2021-01-11T00:00:00Z", y: 68196 }, { x: "2021-01-12T00:00:00Z", y: 68938 }, { x: "2021-01-13T00:00:00Z", y: 69167 }, { x: "2021-01-14T00:00:00Z", y: 69451 }, { x: "2021-01-15T00:00:00Z", y: 70087 }, { x: "2021-01-16T00:00:00Z", y: 70280 }, { x: "2021-01-17T00:00:00Z", y: 70421 }, { x: "2021-01-18T00:00:00Z", y: 70825 }, { x: "2021-01-19T00:00:00Z", y: 71481 }, { x: "2021-01-20T00:00:00Z", y: 71791 }, { x: "2021-01-21T00:00:00Z", y: 72138 }, { x: "2021-01-22T00:00:00Z", y: 72787 }, { x: "2021-01-23T00:00:00Z", y: 73017 }, { x: "2021-01-24T00:00:00Z", y: 73189 }, { x: "2021-01-25T00:00:00Z", y: 73635 }, { x: "2021-01-26T00:00:00Z", y: 74249 }, { x: "2021-01-27T00:00:00Z", y: 74599 }, { x: "2021-01-28T00:00:00Z", y: 74943 }, { x: "2021-01-29T00:00:00Z", y: 75764 }, { x: "2021-01-30T00:00:00Z", y: 76005 }, { x: "2021-01-31T00:00:00Z", y: 76200 }, { x: "2021-02-01T00:00:00Z", y: 76656 }, { x: "2021-02-02T00:00:00Z", y: 77382 }, { x: "2021-02-03T00:00:00Z", y: 77740 }, { x: "2021-02-04T00:00:00Z", y: 77740 }, { x: "2021-02-05T00:00:00Z", y: 78748 }, { x: "2021-02-06T00:00:00Z", y: 78939 }, { x: "2021-02-07T00:00:00Z", y: 79110 }, { x: "2021-02-08T00:00:00Z", y: 79570 }, { x: "2021-02-09T00:00:00Z", y: 80294 }, { x: "2021-02-10T00:00:00Z", y: 80590 }, { x: "2021-02-11T00:00:00Z", y: 80950 }, { x: "2021-02-12T00:00:00Z", y: 81595 }, { x: "2021-02-13T00:00:00Z", y: 81794 }, { x: "2021-02-14T00:00:00Z", y: 81961 }, { x: "2021-02-15T00:00:00Z", y: 82373 }, { x: "2021-02-16T00:00:00Z", y: 82960 }, { x: "2021-02-17T00:00:00Z", y: 83270 }, { x: "2021-02-18T00:00:00Z", y: 83541 }, { x: "2021-02-19T00:00:00Z", y: 84113 }, { x: "2021-02-20T00:00:00Z", y: 84270 }, { x: "2021-02-21T00:00:00Z", y: 84429 }, { x: "2021-02-22T00:00:00Z", y: 84763 }, { x: "2021-02-23T00:00:00Z", y: 85194 }, { x: "2021-02-24T00:00:00Z", y: 85472 }, { x: "2021-02-25T00:00:00Z", y: 85733 }, { x: "2021-02-26T00:00:00Z", y: 86272 }, { x: "2021-02-27T00:00:00Z", y: 86457 }, { x: "2021-02-28T00:00:00Z", y: 86579 }, { x: "2021-03-01T00:00:00Z", y: 86954 }, { x: "2021-03-02T00:00:00Z", y: 87372 }, { x: "2021-03-03T00:00:00Z", y: 87694 }, { x: "2021-03-04T00:00:00Z", y: 87987 }, { x: "2021-03-05T00:00:00Z", y: 88426 }, { x: "2021-03-06T00:00:00Z", y: 88596 }, { x: "2021-03-07T00:00:00Z", y: 88726 }, { x: "2021-03-08T00:00:00Z", y: 89086 }, { x: "2021-03-09T00:00:00Z", y: 89454 }, { x: "2021-03-10T00:00:00Z", y: 89785 }, { x: "2021-03-11T00:00:00Z", y: 90050 }, { x: "2021-03-12T00:00:00Z", y: 90273 }, { x: "2021-03-13T00:00:00Z", y: 90442 }, { x: "2021-03-14T00:00:00Z", y: 90583 }, { x: "2021-03-15T00:00:00Z", y: 90916 }, { x: "2021-03-16T00:00:00Z", y: 91324 }, { x: "2021-03-17T00:00:00Z", y: 91565 }, { x: "2021-03-18T00:00:00Z", y: 91833 }, { x: "2021-03-19T00:00:00Z", y: 92118 }, { x: "2021-03-20T00:00:00Z", y: 92294 }, { x: "2021-03-21T00:00:00Z", y: 92433 }, { x: "2021-03-22T00:00:00Z", y: 92776 }, { x: "2021-03-23T00:00:00Z", y: 93063 }, { x: "2021-03-24T00:00:00Z", y: 93309 }, { x: "2021-03-25T00:00:00Z", y: 93535 }, { x: "2021-03-26T00:00:00Z", y: 94432 }, { x: "2021-03-27T00:00:00Z", y: 94623 }, { x: "2021-03-28T00:00:00Z", y: 94754 }, { x: "2021-03-29T00:00:00Z", y: 95114 }, { x: "2021-03-30T00:00:00Z", y: 95495 }, { x: "2021-03-31T00:00:00Z", y: 95798 }, { x: "2021-04-01T00:00:00Z", y: 96106 }, { x: "2021-04-02T00:00:00Z", y: 96438 }, { x: "2021-04-03T00:00:00Z", y: 96624 }, { x: "2021-04-04T00:00:00Z", y: 96809 }, { x: "2021-04-05T00:00:00Z", y: 97006 }, { x: "2021-04-06T00:00:00Z", y: 97432 }, { x: "2021-04-07T00:00:00Z", y: 97853 }, { x: "2021-04-08T00:00:00Z", y: 98196 }, { x: "2021-04-09T00:00:00Z", y: 98527 }, { x: "2021-04-10T00:00:00Z", y: 98734 }, { x: "2021-04-11T00:00:00Z", y: 98910 }, { x: "2021-04-12T00:00:00Z", y: 99295 }, { x: "2021-04-13T00:00:00Z", y: 99640 }, { x: "2021-04-14T00:00:00Z", y: 99937 }, { x: "2021-04-15T00:00:00Z", y: 100233 }, { x: "2021-04-16T00:00:00Z", y: 100564 }, { x: "2021-04-17T00:00:00Z", y: 100753 }, { x: "2021-04-18T00:00:00Z", y: 100893 }, { x: "2021-04-19T00:00:00Z", y: 101340 }, { x: "2021-04-20T00:00:00Z", y: 101728 }, { x: "2021-04-21T00:00:00Z", y: 102041 }, { x: "2021-04-22T00:00:00Z", y: 102324 }, { x: "2021-04-23T00:00:00Z", y: 102656 }, { x: "2021-04-24T00:00:00Z", y: 102873 }, { x: "2021-04-25T00:00:00Z", y: 103018 }, { x: "2021-04-26T00:00:00Z", y: 103416 }, { x: "2021-04-27T00:00:00Z", y: 103763 }, { x: "2021-04-28T00:00:00Z", y: 104078 }, { x: "2021-04-29T00:00:00Z", y: 104384 }, { x: "2021-04-30T00:00:00Z", y: 104676 }, { x: "2021-05-01T00:00:00Z", y: 104868 }, { x: "2021-05-02T00:00:00Z", y: 104982 }, { x: "2021-05-03T00:00:00Z", y: 105293 }, { x: "2021-05-04T00:00:00Z", y: 105550 }, { x: "2021-05-05T00:00:00Z", y: 105794 }, { x: "2021-05-06T00:00:00Z", y: 106013 }, { x: "2021-05-07T00:00:00Z", y: 106264 }, { x: "2021-05-08T00:00:00Z", y: 106440 }, { x: "2021-05-09T00:00:00Z", y: 106555 }, { x: "2021-05-10T00:00:00Z", y: 106847 }, { x: "2021-05-11T00:00:00Z", y: 107098 }, { x: "2021-05-12T00:00:00Z", y: 107282 }, { x: "2021-05-13T00:00:00Z", y: 107413 }, { x: "2021-05-14T00:00:00Z", y: 107586 }, { x: "2021-05-15T00:00:00Z", y: 107698 }, { x: "2021-05-16T00:00:00Z", y: 107779 }, { x: "2021-05-17T00:00:00Z", y: 107975 }, { x: "2021-05-18T00:00:00Z", y: 108203 }, { x: "2021-05-19T00:00:00Z", y: 108344 }, { x: "2021-05-20T00:00:00Z", y: 108477 }, { x: "2021-05-21T00:00:00Z", y: 108600 }, { x: "2021-05-22T00:00:00Z", y: 108689 }, { x: "2021-05-23T00:00:00Z", y: 108760 }, { x: "2021-05-24T00:00:00Z", y: 108822 }, { x: "2021-05-25T00:00:00Z", y: 109043 }, { x: "2021-05-26T00:00:00Z", y: 109188 }, { x: "2021-05-27T00:00:00Z", y: 109330 }, { x: "2021-05-28T00:00:00Z", y: 109455 }, { x: "2021-05-29T00:00:00Z", y: 109523 }, { x: "2021-05-30T00:00:00Z", y: 109567 }, { x: "2021-05-31T00:00:00Z", y: 109693 }, { x: "2021-06-01T00:00:00Z", y: 109827 }, { x: "2021-06-02T00:00:00Z", y: 109923 }, { x: "2021-06-03T00:00:00Z", y: 109993 }, { x: "2021-06-04T00:00:00Z", y: 110081 }, { x: "2021-06-05T00:00:00Z", y: 110138 }, { x: "2021-06-06T00:00:00Z", y: 110170 }, { x: "2021-06-07T00:00:00Z", y: 110234 }, { x: "2021-06-08T00:00:00Z", y: 110309 }, { x: "2021-06-09T00:00:00Z", y: 110374 }, { x: "2021-06-10T00:00:00Z", y: 110442 }, { x: "2021-06-11T00:00:00Z", y: 110516 }, { x: "2021-06-12T00:00:00Z", y: 110550 }, { x: "2021-06-13T00:00:00Z", y: 110566 }, { x: "2021-06-14T00:00:00Z", y: 110629 }, { x: "2021-06-15T00:00:00Z", y: 110709 }, { x: "2021-06-16T00:00:00Z", y: 110753 }, { x: "2021-06-17T00:00:00Z", y: 110809 }, { x: "2021-06-18T00:00:00Z", y: 110877 }, { x: "2021-06-19T00:00:00Z", y: 110899 }, { x: "2021-06-20T00:00:00Z", y: 110914 }, { x: "2021-06-21T00:00:00Z", y: 110954 }, { x: "2021-06-22T00:00:00Z", y: 111005 }, { x: "2021-06-23T00:00:00Z", y: 111038 }, { x: "2021-06-24T00:00:00Z", y: 111082 }, { x: "2021-06-25T00:00:00Z", y: 111115 }, { x: "2021-06-26T00:00:00Z", y: 111127 }, { x: "2021-06-27T00:00:00Z", y: 111145 }, { x: "2021-06-28T00:00:00Z", y: 111189 }, { x: "2021-06-29T00:00:00Z", y: 111234 }, { x: "2021-06-30T00:00:00Z", y: 111259 }, { x: "2021-07-01T00:00:00Z", y: 111288 }, { x: "2021-07-02T00:00:00Z", y: 111312 }, { x: "2021-07-03T00:00:00Z", y: 111329 }, { x: "2021-07-04T00:00:00Z", y: 111340 }, { x: "2021-07-05T00:00:00Z", y: 111377 }, { x: "2021-07-06T00:00:00Z", y: 111412 }, { x: "2021-07-07T00:00:00Z", y: 111440 }, { x: "2021-07-08T00:00:00Z", y: 111465 }, { x: "2021-07-09T00:00:00Z", y: 111483 }, { x: "2021-07-10T00:00:00Z", y: 111502 }, { x: "2021-07-11T00:00:00Z", y: 111507 }, { x: "2021-07-12T00:00:00Z", y: 111535 }, { x: "2021-07-13T00:00:00Z", y: 111589 }, { x: "2021-07-14T00:00:00Z", y: 111595 }, { x: "2021-07-15T00:00:00Z", y: 111611 }, { x: "2021-07-16T00:00:00Z", y: 111633 }, { x: "2021-07-17T00:00:00Z", y: 111649 }, { x: "2021-07-18T00:00:00Z", y: 111654 }, { x: "2021-07-19T00:00:00Z", y: 111674 }, { x: "2021-07-20T00:00:00Z", y: 111707 }, { x: "2021-07-21T00:00:00Z", y: 111729 }, { x: "2021-07-22T00:00:00Z", y: 111741 }, { x: "2021-07-23T00:00:00Z", y: 111778 }, { x: "2021-07-24T00:00:00Z", y: 111800 }, { x: "2021-07-25T00:00:00Z", y: 111806 }, { x: "2021-07-26T00:00:00Z", y: 111852 }, { x: "2021-07-27T00:00:00Z", y: 111881 }, { x: "2021-07-28T00:00:00Z", y: 111925 }, { x: "2021-07-29T00:00:00Z", y: 111954 }, { x: "2021-07-30T00:00:00Z", y: 112017 }, { x: "2021-07-31T00:00:00Z", y: 112061 }, { x: "2021-08-01T00:00:00Z", y: 112079 }, { x: "2021-08-02T00:00:00Z", y: 112136 }, { x: "2021-08-03T00:00:00Z", y: 112196 }, { x: "2021-08-04T00:00:00Z", y: 112245 }, { x: "2021-08-05T00:00:00Z", y: 112298 }, { x: "2021-08-06T00:00:00Z", y: 112364 }, { x: "2021-08-07T00:00:00Z", y: 112396 }, { x: "2021-08-08T00:00:00Z", y: 112427 }, { x: "2021-08-09T00:00:00Z", y: 112511 }, { x: "2021-08-10T00:00:00Z", y: 112591 }, { x: "2021-08-11T00:00:00Z", y: 112654 }, { x: "2021-08-12T00:00:00Z", y: 112734 }, { x: "2021-08-13T00:00:00Z", y: 112828 }, { x: "2021-08-14T00:00:00Z", y: 112881 }, { x: "2021-08-15T00:00:00Z", y: 112925 }, { x: "2021-08-16T00:00:00Z", y: 113055 }, { x: "2021-08-17T00:00:00Z", y: 113179 }, { x: "2021-08-18T00:00:00Z", y: 113312 }, { x: "2021-08-19T00:00:00Z", y: 113451 }, { x: "2021-08-20T00:00:00Z", y: 113548 }, { x: "2021-08-21T00:00:00Z", y: 113660 }, { x: "2021-08-22T00:00:00Z", y: 113775 }, { x: "2021-08-23T00:00:00Z", y: 113938 }, { x: "2021-08-24T00:00:00Z", y: 114112 }, { x: "2021-08-25T00:00:00Z", y: 114240 }, { x: "2021-08-26T00:00:00Z", y: 114379 }, { x: "2021-08-27T00:00:00Z", y: 114500 }, { x: "2021-08-28T00:00:00Z", y: 114574 }, { x: "2021-08-29T00:00:00Z", y: 114627 }, { x: "2021-08-30T00:00:00Z", y: 114778 }, { x: "2021-08-31T00:00:00Z", y: 114926 }, { x: "2021-09-01T00:00:00Z", y: 115031 }, { x: "2021-09-02T00:00:00Z", y: 115157 }, { x: "2021-09-03T00:00:00Z", y: 115269 }, { x: "2021-09-04T00:00:00Z", y: 115352 }, { x: "2021-09-05T00:00:00Z", y: 115401 }, { x: "2021-09-06T00:00:00Z", y: 115563 }, { x: "2021-09-07T00:00:00Z", y: 115680 }, { x: "2021-09-08T00:00:00Z", y: 115846 }, { x: "2021-09-09T00:00:00Z", y: 115941 }, { x: "2021-09-10T00:00:00Z", y: 116049 }, { x: "2021-09-11T00:00:00Z", y: 116095 }, { x: "2021-09-12T00:00:00Z", y: 116124 }, { x: "2021-09-13T00:00:00Z", y: 116245 }, { x: "2021-09-14T00:00:00Z", y: 116454 }, { x: "2021-09-15T00:00:00Z", y: 116470 }, { x: "2021-09-16T00:00:00Z", y: 116511 }, { x: "2021-09-17T00:00:00Z", y: 116618 }, { x: "2021-09-18T00:00:00Z", y: 116662 }, { x: "2021-09-19T00:00:00Z", y: 116696 }, { x: "2021-09-20T00:00:00Z", y: 116765 }, { x: "2021-09-21T00:00:00Z", y: 116901 }, { x: "2021-09-22T00:00:00Z", y: 116981 }, { x: "2021-09-23T00:00:00Z", y: 117062 }, { x: "2021-09-24T00:00:00Z", y: 117147 }, { x: "2021-09-25T00:00:00Z", y: 117157 }, { x: "2021-09-26T00:00:00Z", y: 117182 }, { x: "2021-09-27T00:00:00Z", y: 117281 }, { x: "2021-09-28T00:00:00Z", y: 117348 }, { x: "2021-09-29T00:00:00Z", y: 117407 }, { x: "2021-09-30T00:00:00Z", y: 117474 }, { x: "2021-10-01T00:00:00Z", y: 117535 }, { x: "2021-10-02T00:00:00Z", y: 117578 }, { x: "2021-10-03T00:00:00Z", y: 117595 }, { x: "2021-10-04T00:00:00Z", y: 117657 }, { x: "2021-10-05T00:00:00Z", y: 117728 }, { x: "2021-10-06T00:00:00Z", y: 117800 }, { x: "2021-10-07T00:00:00Z", y: 117846 }, { x: "2021-10-08T00:00:00Z", y: 117895 }, { x: "2021-10-09T00:00:00Z", y: 117915 }, { x: "2021-10-10T00:00:00Z", y: 117927 }, { x: "2021-10-11T00:00:00Z", y: 117966 }, { x: "2021-10-12T00:00:00Z", y: 118027 }, { x: "2021-10-13T00:00:00Z", y: 118080 }, { x: "2021-10-14T00:00:00Z", y: 118111 }, { x: "2021-10-15T00:00:00Z", y: 118153 }, { x: "2021-10-16T00:00:00Z", y: 118173 }, { x: "2021-10-17T00:00:00Z", y: 118183 }, { x: "2021-10-18T00:00:00Z", y: 118232 }, { x: "2021-10-19T00:00:00Z", y: 118272 }, { x: "2021-10-20T00:00:00Z", y: 118300 }, { x: "2021-10-21T00:00:00Z", y: 118339 }, { x: "2021-10-22T00:00:00Z", y: 118373 }, { x: "2021-10-23T00:00:00Z", y: 118396 }, { x: "2021-10-24T00:00:00Z", y: 118405 }, { x: "2021-10-25T00:00:00Z", y: 118452 }, { x: "2021-10-26T00:00:00Z", y: 118490 }, { x: "2021-10-27T00:00:00Z", y: 118530 }, { x: "2021-10-28T00:00:00Z", y: 118561 }, { x: "2021-10-29T00:00:00Z", y: 118590 }, { x: "2021-10-30T00:00:00Z", y: 118612 }, { x: "2021-10-31T00:00:00Z", y: 118625 }, { x: "2021-11-01T00:00:00Z", y: 118632 }, { x: "2021-11-02T00:00:00Z", y: 118720 }, { x: "2021-11-03T00:00:00Z", y: 118758 }, { x: "2021-11-04T00:00:00Z", y: 118804 }, { x: "2021-11-05T00:00:00Z", y: 118830 }, { x: "2021-11-06T00:00:00Z", y: 118855 }, { x: "2021-11-07T00:00:00Z", y: 118866 }, { x: "2021-11-08T00:00:00Z", y: 118924 }, { x: "2021-11-09T00:00:00Z", y: 118970 }, { x: "2021-11-10T00:00:00Z", y: 119003 }, { x: "2021-11-11T00:00:00Z", y: 119021 }, { x: "2021-11-12T00:00:00Z", y: 119069 }, { x: "2021-11-13T00:00:00Z", y: 119085 }] }, { label: "Germany", data: [{ x: "2020-01-22T00:00:00Z", y: 0 }, { x: "2020-01-23T00:00:00Z", y: 0 }, { x: "2020-01-24T00:00:00Z", y: 0 }, { x: "2020-01-25T00:00:00Z", y: 0 }, { x: "2020-01-26T00:00:00Z", y: 0 }, { x: "2020-01-27T00:00:00Z", y: 0 }, { x: "2020-01-28T00:00:00Z", y: 0 }, { x: "2020-01-29T00:00:00Z", y: 0 }, { x: "2020-01-30T00:00:00Z", y: 0 }, { x: "2020-01-31T00:00:00Z", y: 0 }, { x: "2020-02-01T00:00:00Z", y: 0 }, { x: "2020-02-02T00:00:00Z", y: 0 }, { x: "2020-02-03T00:00:00Z", y: 0 }, { x: "2020-02-04T00:00:00Z", y: 0 }, { x: "2020-02-05T00:00:00Z", y: 0 }, { x: "2020-02-06T00:00:00Z", y: 0 }, { x: "2020-02-07T00:00:00Z", y: 0 }, { x: "2020-02-08T00:00:00Z", y: 0 }, { x: "2020-02-09T00:00:00Z", y: 0 }, { x: "2020-02-10T00:00:00Z", y: 0 }, { x: "2020-02-11T00:00:00Z", y: 0 }, { x: "2020-02-12T00:00:00Z", y: 0 }, { x: "2020-02-13T00:00:00Z", y: 0 }, { x: "2020-02-14T00:00:00Z", y: 0 }, { x: "2020-02-15T00:00:00Z", y: 0 }, { x: "2020-02-16T00:00:00Z", y: 0 }, { x: "2020-02-17T00:00:00Z", y: 0 }, { x: "2020-02-18T00:00:00Z", y: 0 }, { x: "2020-02-19T00:00:00Z", y: 0 }, { x: "2020-02-20T00:00:00Z", y: 0 }, { x: "2020-02-21T00:00:00Z", y: 0 }, { x: "2020-02-22T00:00:00Z", y: 0 }, { x: "2020-02-23T00:00:00Z", y: 0 }, { x: "2020-02-24T00:00:00Z", y: 0 }, { x: "2020-02-25T00:00:00Z", y: 0 }, { x: "2020-02-26T00:00:00Z", y: 0 }, { x: "2020-02-27T00:00:00Z", y: 0 }, { x: "2020-02-28T00:00:00Z", y: 0 }, { x: "2020-02-29T00:00:00Z", y: 0 }, { x: "2020-03-01T00:00:00Z", y: 0 }, { x: "2020-03-02T00:00:00Z", y: 0 }, { x: "2020-03-03T00:00:00Z", y: 0 }, { x: "2020-03-04T00:00:00Z", y: 0 }, { x: "2020-03-05T00:00:00Z", y: 0 }, { x: "2020-03-06T00:00:00Z", y: 0 }, { x: "2020-03-07T00:00:00Z", y: 0 }, { x: "2020-03-08T00:00:00Z", y: 0 }, { x: "2020-03-09T00:00:00Z", y: 2 }, { x: "2020-03-10T00:00:00Z", y: 2 }, { x: "2020-03-11T00:00:00Z", y: 3 }, { x: "2020-03-12T00:00:00Z", y: 3 }, { x: "2020-03-13T00:00:00Z", y: 7 }, { x: "2020-03-14T00:00:00Z", y: 9 }, { x: "2020-03-15T00:00:00Z", y: 11 }, { x: "2020-03-16T00:00:00Z", y: 17 }, { x: "2020-03-17T00:00:00Z", y: 24 }, { x: "2020-03-18T00:00:00Z", y: 28 }, { x: "2020-03-19T00:00:00Z", y: 44 }, { x: "2020-03-20T00:00:00Z", y: 67 }, { x: "2020-03-21T00:00:00Z", y: 84 }, { x: "2020-03-22T00:00:00Z", y: 94 }, { x: "2020-03-23T00:00:00Z", y: 123 }, { x: "2020-03-24T00:00:00Z", y: 157 }, { x: "2020-03-25T00:00:00Z", y: 206 }, { x: "2020-03-26T00:00:00Z", y: 267 }, { x: "2020-03-27T00:00:00Z", y: 342 }, { x: "2020-03-28T00:00:00Z", y: 433 }, { x: "2020-03-29T00:00:00Z", y: 533 }, { x: "2020-03-30T00:00:00Z", y: 645 }, { x: "2020-03-31T00:00:00Z", y: 775 }, { x: "2020-04-01T00:00:00Z", y: 920 }, { x: "2020-04-02T00:00:00Z", y: 1107 }, { x: "2020-04-03T00:00:00Z", y: 1275 }, { x: "2020-04-04T00:00:00Z", y: 1444 }, { x: "2020-04-05T00:00:00Z", y: 1584 }, { x: "2020-04-06T00:00:00Z", y: 1810 }, { x: "2020-04-07T00:00:00Z", y: 2016 }, { x: "2020-04-08T00:00:00Z", y: 2349 }, { x: "2020-04-09T00:00:00Z", y: 2607 }, { x: "2020-04-10T00:00:00Z", y: 2767 }, { x: "2020-04-11T00:00:00Z", y: 2736 }, { x: "2020-04-12T00:00:00Z", y: 3022 }, { x: "2020-04-13T00:00:00Z", y: 3194 }, { x: "2020-04-14T00:00:00Z", y: 3294 }, { x: "2020-04-15T00:00:00Z", y: 3804 }, { x: "2020-04-16T00:00:00Z", y: 4052 }, { x: "2020-04-17T00:00:00Z", y: 4352 }, { x: "2020-04-18T00:00:00Z", y: 4459 }, { x: "2020-04-19T00:00:00Z", y: 4586 }, { x: "2020-04-20T00:00:00Z", y: 4862 }, { x: "2020-04-21T00:00:00Z", y: 5033 }, { x: "2020-04-22T00:00:00Z", y: 5279 }, { x: "2020-04-23T00:00:00Z", y: 5575 }, { x: "2020-04-24T00:00:00Z", y: 5760 }, { x: "2020-04-25T00:00:00Z", y: 5877 }, { x: "2020-04-26T00:00:00Z", y: 5976 }, { x: "2020-04-27T00:00:00Z", y: 6126 }, { x: "2020-04-28T00:00:00Z", y: 6314 }, { x: "2020-04-29T00:00:00Z", y: 6467 }, { x: "2020-04-30T00:00:00Z", y: 6623 }, { x: "2020-05-01T00:00:00Z", y: 6736 }, { x: "2020-05-02T00:00:00Z", y: 6812 }, { x: "2020-05-03T00:00:00Z", y: 6866 }, { x: "2020-05-04T00:00:00Z", y: 6993 }, { x: "2020-05-05T00:00:00Z", y: 6993 }, { x: "2020-05-06T00:00:00Z", y: 7275 }, { x: "2020-05-07T00:00:00Z", y: 7392 }, { x: "2020-05-08T00:00:00Z", y: 7510 }, { x: "2020-05-09T00:00:00Z", y: 7549 }, { x: "2020-05-10T00:00:00Z", y: 7569 }, { x: "2020-05-11T00:00:00Z", y: 7661 }, { x: "2020-05-12T00:00:00Z", y: 7738 }, { x: "2020-05-13T00:00:00Z", y: 7861 }, { x: "2020-05-14T00:00:00Z", y: 7884 }, { x: "2020-05-15T00:00:00Z", y: 7897 }, { x: "2020-05-16T00:00:00Z", y: 7938 }, { x: "2020-05-17T00:00:00Z", y: 7962 }, { x: "2020-05-18T00:00:00Z", y: 8003 }, { x: "2020-05-19T00:00:00Z", y: 8081 }, { x: "2020-05-20T00:00:00Z", y: 8144 }, { x: "2020-05-21T00:00:00Z", y: 8203 }, { x: "2020-05-22T00:00:00Z", y: 8228 }, { x: "2020-05-23T00:00:00Z", y: 8261 }, { x: "2020-05-24T00:00:00Z", y: 8283 }, { x: "2020-05-25T00:00:00Z", y: 8309 }, { x: "2020-05-26T00:00:00Z", y: 8372 }, { x: "2020-05-27T00:00:00Z", y: 8428 }, { x: "2020-05-28T00:00:00Z", y: 8470 }, { x: "2020-05-29T00:00:00Z", y: 8504 }, { x: "2020-05-30T00:00:00Z", y: 8530 }, { x: "2020-05-31T00:00:00Z", y: 8540 }, { x: "2020-06-01T00:00:00Z", y: 8555 }, { x: "2020-06-02T00:00:00Z", y: 8563 }, { x: "2020-06-03T00:00:00Z", y: 8602 }, { x: "2020-06-04T00:00:00Z", y: 8635 }, { x: "2020-06-05T00:00:00Z", y: 8658 }, { x: "2020-06-06T00:00:00Z", y: 8673 }, { x: "2020-06-07T00:00:00Z", y: 8685 }, { x: "2020-06-08T00:00:00Z", y: 8695 }, { x: "2020-06-09T00:00:00Z", y: 8736 }, { x: "2020-06-10T00:00:00Z", y: 8752 }, { x: "2020-06-11T00:00:00Z", y: 8772 }, { x: "2020-06-12T00:00:00Z", y: 8783 }, { x: "2020-06-13T00:00:00Z", y: 8793 }, { x: "2020-06-14T00:00:00Z", y: 8801 }, { x: "2020-06-15T00:00:00Z", y: 8807 }, { x: "2020-06-16T00:00:00Z", y: 8820 }, { x: "2020-06-17T00:00:00Z", y: 8851 }, { x: "2020-06-18T00:00:00Z", y: 8875 }, { x: "2020-06-19T00:00:00Z", y: 8887 }, { x: "2020-06-20T00:00:00Z", y: 8895 }, { x: "2020-06-21T00:00:00Z", y: 8895 }, { x: "2020-06-22T00:00:00Z", y: 8899 }, { x: "2020-06-23T00:00:00Z", y: 8914 }, { x: "2020-06-24T00:00:00Z", y: 8928 }, { x: "2020-06-25T00:00:00Z", y: 8940 }, { x: "2020-06-26T00:00:00Z", y: 8965 }, { x: "2020-06-27T00:00:00Z", y: 8968 }, { x: "2020-06-28T00:00:00Z", y: 8968 }, { x: "2020-06-29T00:00:00Z", y: 8976 }, { x: "2020-06-30T00:00:00Z", y: 8990 }, { x: "2020-07-01T00:00:00Z", y: 8995 }, { x: "2020-07-02T00:00:00Z", y: 9006 }, { x: "2020-07-03T00:00:00Z", y: 9010 }, { x: "2020-07-04T00:00:00Z", y: 9020 }, { x: "2020-07-05T00:00:00Z", y: 9023 }, { x: "2020-07-06T00:00:00Z", y: 9022 }, { x: "2020-07-07T00:00:00Z", y: 9032 }, { x: "2020-07-08T00:00:00Z", y: 9046 }, { x: "2020-07-09T00:00:00Z", y: 9057 }, { x: "2020-07-10T00:00:00Z", y: 9063 }, { x: "2020-07-11T00:00:00Z", y: 9070 }, { x: "2020-07-12T00:00:00Z", y: 9071 }, { x: "2020-07-13T00:00:00Z", y: 9074 }, { x: "2020-07-14T00:00:00Z", y: 9078 }, { x: "2020-07-15T00:00:00Z", y: 9080 }, { x: "2020-07-16T00:00:00Z", y: 9087 }, { x: "2020-07-17T00:00:00Z", y: 9088 }, { x: "2020-07-18T00:00:00Z", y: 9091 }, { x: "2020-07-19T00:00:00Z", y: 9092 }, { x: "2020-07-20T00:00:00Z", y: 9094 }, { x: "2020-07-21T00:00:00Z", y: 9099 }, { x: "2020-07-22T00:00:00Z", y: 9102 }, { x: "2020-07-23T00:00:00Z", y: 9110 }, { x: "2020-07-24T00:00:00Z", y: 9120 }, { x: "2020-07-25T00:00:00Z", y: 9124 }, { x: "2020-07-26T00:00:00Z", y: 9124 }, { x: "2020-07-27T00:00:00Z", y: 9125 }, { x: "2020-07-28T00:00:00Z", y: 9131 }, { x: "2020-07-29T00:00:00Z", y: 9135 }, { x: "2020-07-30T00:00:00Z", y: 9144 }, { x: "2020-07-31T00:00:00Z", y: 9147 }, { x: "2020-08-01T00:00:00Z", y: 9154 }, { x: "2020-08-02T00:00:00Z", y: 9154 }, { x: "2020-08-03T00:00:00Z", y: 9154 }, { x: "2020-08-04T00:00:00Z", y: 9163 }, { x: "2020-08-05T00:00:00Z", y: 9179 }, { x: "2020-08-06T00:00:00Z", y: 9181 }, { x: "2020-08-07T00:00:00Z", y: 9195 }, { x: "2020-08-08T00:00:00Z", y: 9201 }, { x: "2020-08-09T00:00:00Z", y: 9202 }, { x: "2020-08-10T00:00:00Z", y: 9203 }, { x: "2020-08-11T00:00:00Z", y: 9208 }, { x: "2020-08-12T00:00:00Z", y: 9213 }, { x: "2020-08-13T00:00:00Z", y: 9217 }, { x: "2020-08-14T00:00:00Z", y: 9230 }, { x: "2020-08-15T00:00:00Z", y: 9235 }, { x: "2020-08-16T00:00:00Z", y: 9235 }, { x: "2020-08-17T00:00:00Z", y: 9236 }, { x: "2020-08-18T00:00:00Z", y: 9241 }, { x: "2020-08-19T00:00:00Z", y: 9249 }, { x: "2020-08-20T00:00:00Z", y: 9263 }, { x: "2020-08-21T00:00:00Z", y: 9266 }, { x: "2020-08-22T00:00:00Z", y: 9272 }, { x: "2020-08-23T00:00:00Z", y: 9275 }, { x: "2020-08-24T00:00:00Z", y: 9276 }, { x: "2020-08-25T00:00:00Z", y: 9281 }, { x: "2020-08-26T00:00:00Z", y: 9285 }, { x: "2020-08-27T00:00:00Z", y: 9290 }, { x: "2020-08-28T00:00:00Z", y: 9290 }, { x: "2020-08-29T00:00:00Z", y: 9299 }, { x: "2020-08-30T00:00:00Z", y: 9300 }, { x: "2020-08-31T00:00:00Z", y: 9303 }, { x: "2020-09-01T00:00:00Z", y: 9307 }, { x: "2020-09-02T00:00:00Z", y: 9322 }, { x: "2020-09-03T00:00:00Z", y: 9322 }, { x: "2020-09-04T00:00:00Z", y: 9327 }, { x: "2020-09-05T00:00:00Z", y: 9329 }, { x: "2020-09-06T00:00:00Z", y: 9330 }, { x: "2020-09-07T00:00:00Z", y: 9331 }, { x: "2020-09-08T00:00:00Z", y: 9336 }, { x: "2020-09-09T00:00:00Z", y: 9342 }, { x: "2020-09-10T00:00:00Z", y: 9345 }, { x: "2020-09-11T00:00:00Z", y: 9348 }, { x: "2020-09-12T00:00:00Z", y: 9352 }, { x: "2020-09-13T00:00:00Z", y: 9354 }, { x: "2020-09-14T00:00:00Z", y: 9356 }, { x: "2020-09-15T00:00:00Z", y: 9367 }, { x: "2020-09-16T00:00:00Z", y: 9373 }, { x: "2020-09-17T00:00:00Z", y: 9376 }, { x: "2020-09-18T00:00:00Z", y: 9386 }, { x: "2020-09-19T00:00:00Z", y: 9388 }, { x: "2020-09-20T00:00:00Z", y: 9390 }, { x: "2020-09-21T00:00:00Z", y: 9390 }, { x: "2020-09-22T00:00:00Z", y: 9405 }, { x: "2020-09-23T00:00:00Z", y: 9423 }, { x: "2020-09-24T00:00:00Z", y: 9436 }, { x: "2020-09-25T00:00:00Z", y: 9451 }, { x: "2020-09-26T00:00:00Z", y: 9459 }, { x: "2020-09-27T00:00:00Z", y: 9464 }, { x: "2020-09-28T00:00:00Z", y: 9468 }, { x: "2020-09-29T00:00:00Z", y: 9483 }, { x: "2020-09-30T00:00:00Z", y: 9495 }, { x: "2020-10-01T00:00:00Z", y: 9509 }, { x: "2020-10-02T00:00:00Z", y: 9518 }, { x: "2020-10-03T00:00:00Z", y: 9531 }, { x: "2020-10-04T00:00:00Z", y: 9533 }, { x: "2020-10-05T00:00:00Z", y: 9554 }, { x: "2020-10-06T00:00:00Z", y: 9566 }, { x: "2020-10-07T00:00:00Z", y: 9582 }, { x: "2020-10-08T00:00:00Z", y: 9594 }, { x: "2020-10-09T00:00:00Z", y: 9599 }, { x: "2020-10-10T00:00:00Z", y: 9620 }, { x: "2020-10-11T00:00:00Z", y: 9626 }, { x: "2020-10-12T00:00:00Z", y: 9640 }, { x: "2020-10-13T00:00:00Z", y: 9682 }, { x: "2020-10-14T00:00:00Z", y: 9716 }, { x: "2020-10-15T00:00:00Z", y: 9739 }, { x: "2020-10-16T00:00:00Z", y: 9773 }, { x: "2020-10-17T00:00:00Z", y: 9785 }, { x: "2020-10-18T00:00:00Z", y: 9798 }, { x: "2020-10-19T00:00:00Z", y: 9842 }, { x: "2020-10-20T00:00:00Z", y: 9882 }, { x: "2020-10-21T00:00:00Z", y: 9911 }, { x: "2020-10-22T00:00:00Z", y: 9960 }, { x: "2020-10-23T00:00:00Z", y: 9978 }, { x: "2020-10-24T00:00:00Z", y: 10035 }, { x: "2020-10-25T00:00:00Z", y: 10062 }, { x: "2020-10-26T00:00:00Z", y: 10091 }, { x: "2020-10-27T00:00:00Z", y: 10121 }, { x: "2020-10-28T00:00:00Z", y: 10218 }, { x: "2020-10-29T00:00:00Z", y: 10305 }, { x: "2020-10-30T00:00:00Z", y: 10391 }, { x: "2020-10-31T00:00:00Z", y: 10483 }, { x: "2020-11-01T00:00:00Z", y: 10513 }, { x: "2020-11-02T00:00:00Z", y: 10669 }, { x: "2020-11-03T00:00:00Z", y: 10717 }, { x: "2020-11-04T00:00:00Z", y: 10949 }, { x: "2020-11-05T00:00:00Z", y: 11110 }, { x: "2020-11-06T00:00:00Z", y: 11240 }, { x: "2020-11-07T00:00:00Z", y: 11306 }, { x: "2020-11-08T00:00:00Z", y: 11372 }, { x: "2020-11-09T00:00:00Z", y: 11408 }, { x: "2020-11-10T00:00:00Z", y: 11781 }, { x: "2020-11-11T00:00:00Z", y: 11994 }, { x: "2020-11-12T00:00:00Z", y: 12216 }, { x: "2020-11-13T00:00:00Z", y: 12404 }, { x: "2020-11-14T00:00:00Z", y: 12511 }, { x: "2020-11-15T00:00:00Z", y: 12573 }, { x: "2020-11-16T00:00:00Z", y: 12833 }, { x: "2020-11-17T00:00:00Z", y: 13138 }, { x: "2020-11-18T00:00:00Z", y: 13390 }, { x: "2020-11-19T00:00:00Z", y: 13662 }, { x: "2020-11-20T00:00:00Z", y: 13918 }, { x: "2020-11-21T00:00:00Z", y: 14061 }, { x: "2020-11-22T00:00:00Z", y: 14159 }, { x: "2020-11-23T00:00:00Z", y: 14460 }, { x: "2020-11-24T00:00:00Z", y: 14832 }, { x: "2020-11-25T00:00:00Z", y: 15210 }, { x: "2020-11-26T00:00:00Z", y: 15640 }, { x: "2020-11-27T00:00:00Z", y: 16011 }, { x: "2020-11-28T00:00:00Z", y: 16181 }, { x: "2020-11-29T00:00:00Z", y: 16306 }, { x: "2020-11-30T00:00:00Z", y: 16694 }, { x: "2020-12-01T00:00:00Z", y: 17177 }, { x: "2020-12-02T00:00:00Z", y: 17659 }, { x: "2020-12-03T00:00:00Z", y: 18097 }, { x: "2020-12-04T00:00:00Z", y: 18577 }, { x: "2020-12-05T00:00:00Z", y: 18839 }, { x: "2020-12-06T00:00:00Z", y: 18989 }, { x: "2020-12-07T00:00:00Z", y: 19434 }, { x: "2020-12-08T00:00:00Z", y: 20002 }, { x: "2020-12-09T00:00:00Z", y: 20460 }, { x: "2020-12-10T00:00:00Z", y: 21064 }, { x: "2020-12-11T00:00:00Z", y: 21567 }, { x: "2020-12-12T00:00:00Z", y: 21900 }, { x: "2020-12-13T00:00:00Z", y: 22106 }, { x: "2020-12-14T00:00:00Z", y: 22634 }, { x: "2020-12-15T00:00:00Z", y: 23544 }, { x: "2020-12-16T00:00:00Z", y: 24273 }, { x: "2020-12-17T00:00:00Z", y: 25027 }, { x: "2020-12-18T00:00:00Z", y: 25754 }, { x: "2020-12-19T00:00:00Z", y: 26171 }, { x: "2020-12-20T00:00:00Z", y: 26400 }, { x: "2020-12-21T00:00:00Z", y: 27110 }, { x: "2020-12-22T00:00:00Z", y: 28096 }, { x: "2020-12-23T00:00:00Z", y: 28909 }, { x: "2020-12-24T00:00:00Z", y: 29330 }, { x: "2020-12-25T00:00:00Z", y: 29580 }, { x: "2020-12-26T00:00:00Z", y: 29946 }, { x: "2020-12-27T00:00:00Z", y: 30297 }, { x: "2020-12-28T00:00:00Z", y: 31145 }, { x: "2020-12-29T00:00:00Z", y: 32263 }, { x: "2020-12-30T00:00:00Z", y: 33281 }, { x: "2020-12-31T00:00:00Z", y: 33791 }, { x: "2021-01-01T00:00:00Z", y: 34150 }, { x: "2021-01-02T00:00:00Z", y: 34480 }, { x: "2021-01-03T00:00:00Z", y: 34791 }, { x: "2021-01-04T00:00:00Z", y: 35748 }, { x: "2021-01-05T00:00:00Z", y: 36757 }, { x: "2021-01-06T00:00:00Z", y: 37835 }, { x: "2021-01-07T00:00:00Z", y: 38987 }, { x: "2021-01-08T00:00:00Z", y: 40022 }, { x: "2021-01-09T00:00:00Z", y: 40597 }, { x: "2021-01-10T00:00:00Z", y: 40936 }, { x: "2021-01-11T00:00:00Z", y: 41799 }, { x: "2021-01-12T00:00:00Z", y: 42889 }, { x: "2021-01-13T00:00:00Z", y: 44096 }, { x: "2021-01-14T00:00:00Z", y: 45207 }, { x: "2021-01-15T00:00:00Z", y: 45705 }, { x: "2021-01-16T00:00:00Z", y: 46464 }, { x: "2021-01-17T00:00:00Z", y: 46901 }, { x: "2021-01-18T00:00:00Z", y: 47263 }, { x: "2021-01-19T00:00:00Z", y: 48997 }, { x: "2021-01-20T00:00:00Z", y: 50010 }, { x: "2021-01-21T00:00:00Z", y: 50876 }, { x: "2021-01-22T00:00:00Z", y: 51713 }, { x: "2021-01-23T00:00:00Z", y: 51873 }, { x: "2021-01-24T00:00:00Z", y: 52296 }, { x: "2021-01-25T00:00:00Z", y: 53127 }, { x: "2021-01-26T00:00:00Z", y: 53619 }, { x: "2021-01-27T00:00:00Z", y: 54498 }, { x: "2021-01-28T00:00:00Z", y: 55883 }, { x: "2021-01-29T00:00:00Z", y: 56286 }, { x: "2021-01-30T00:00:00Z", y: 57105 }, { x: "2021-01-31T00:00:00Z", y: 57163 }, { x: "2021-02-01T00:00:00Z", y: 58059 }, { x: "2021-02-02T00:00:00Z", y: 58992 }, { x: "2021-02-03T00:00:00Z", y: 59776 }, { x: "2021-02-04T00:00:00Z", y: 60634 }, { x: "2021-02-05T00:00:00Z", y: 61324 }, { x: "2021-02-06T00:00:00Z", y: 61551 }, { x: "2021-02-07T00:00:00Z", y: 61708 }, { x: "2021-02-08T00:00:00Z", y: 62191 }, { x: "2021-02-09T00:00:00Z", y: 63006 }, { x: "2021-02-10T00:00:00Z", y: 63672 }, { x: "2021-02-11T00:00:00Z", y: 64224 }, { x: "2021-02-12T00:00:00Z", y: 64771 }, { x: "2021-02-13T00:00:00Z", y: 64990 }, { x: "2021-02-14T00:00:00Z", y: 65107 }, { x: "2021-02-15T00:00:00Z", y: 65288 }, { x: "2021-02-16T00:00:00Z", y: 65829 }, { x: "2021-02-17T00:00:00Z", y: 66732 }, { x: "2021-02-18T00:00:00Z", y: 67245 }, { x: "2021-02-19T00:00:00Z", y: 67741 }, { x: "2021-02-20T00:00:00Z", y: 67883 }, { x: "2021-02-21T00:00:00Z", y: 67946 }, { x: "2021-02-22T00:00:00Z", y: 68363 }, { x: "2021-02-23T00:00:00Z", y: 68785 }, { x: "2021-02-24T00:00:00Z", y: 69170 }, { x: "2021-02-25T00:00:00Z", y: 69343 }, { x: "2021-02-26T00:00:00Z", y: 69939 }, { x: "2021-02-27T00:00:00Z", y: 70092 }, { x: "2021-02-28T00:00:00Z", y: 70152 }, { x: "2021-03-01T00:00:00Z", y: 70514 }, { x: "2021-03-02T00:00:00Z", y: 70926 }, { x: "2021-03-03T00:00:00Z", y: 71285 }, { x: "2021-03-04T00:00:00Z", y: 71554 }, { x: "2021-03-05T00:00:00Z", y: 71852 }, { x: "2021-03-06T00:00:00Z", y: 71951 }, { x: "2021-03-07T00:00:00Z", y: 71984 }, { x: "2021-03-08T00:00:00Z", y: 72236 }, { x: "2021-03-09T00:00:00Z", y: 72534 }, { x: "2021-03-10T00:00:00Z", y: 72858 }, { x: "2021-03-11T00:00:00Z", y: 73120 }, { x: "2021-03-12T00:00:00Z", y: 73348 }, { x: "2021-03-13T00:00:00Z", y: 73369 }, { x: "2021-03-14T00:00:00Z", y: 73463 }, { x: "2021-03-15T00:00:00Z", y: 73701 }, { x: "2021-03-16T00:00:00Z", y: 73953 }, { x: "2021-03-17T00:00:00Z", y: 74177 }, { x: "2021-03-18T00:00:00Z", y: 74402 }, { x: "2021-03-19T00:00:00Z", y: 74609 }, { x: "2021-03-20T00:00:00Z", y: 74707 }, { x: "2021-03-21T00:00:00Z", y: 74756 }, { x: "2021-03-22T00:00:00Z", y: 75009 }, { x: "2021-03-23T00:00:00Z", y: 75255 }, { x: "2021-03-24T00:00:00Z", y: 75484 }, { x: "2021-03-25T00:00:00Z", y: 75669 }, { x: "2021-03-26T00:00:00Z", y: 75828 }, { x: "2021-03-27T00:00:00Z", y: 75915 }, { x: "2021-03-28T00:00:00Z", y: 75959 }, { x: "2021-03-29T00:00:00Z", y: 76139 }, { x: "2021-03-30T00:00:00Z", y: 76389 }, { x: "2021-03-31T00:00:00Z", y: 76589 }, { x: "2021-04-01T00:00:00Z", y: 76823 }, { x: "2021-04-02T00:00:00Z", y: 76940 }, { x: "2021-04-03T00:00:00Z", y: 77010 }, { x: "2021-04-04T00:00:00Z", y: 77060 }, { x: "2021-04-05T00:00:00Z", y: 77136 }, { x: "2021-04-06T00:00:00Z", y: 77245 }, { x: "2021-04-07T00:00:00Z", y: 77755 }, { x: "2021-04-08T00:00:00Z", y: 78049 }, { x: "2021-04-09T00:00:00Z", y: 78295 }, { x: "2021-04-10T00:00:00Z", y: 78402 }, { x: "2021-04-11T00:00:00Z", y: 78500 }, { x: "2021-04-12T00:00:00Z", y: 78796 }, { x: "2021-04-13T00:00:00Z", y: 79137 }, { x: "2021-04-14T00:00:00Z", y: 79427 }, { x: "2021-04-15T00:00:00Z", y: 79672 }, { x: "2021-04-16T00:00:00Z", y: 79894 }, { x: "2021-04-17T00:00:00Z", y: 79971 }, { x: "2021-04-18T00:00:00Z", y: 80052 }, { x: "2021-04-19T00:00:00Z", y: 80353 }, { x: "2021-04-20T00:00:00Z", y: 80680 }, { x: "2021-04-21T00:00:00Z", y: 80938 }, { x: "2021-04-22T00:00:00Z", y: 81203 }, { x: "2021-04-23T00:00:00Z", y: 81492 }, { x: "2021-04-24T00:00:00Z", y: 81610 }, { x: "2021-04-25T00:00:00Z", y: 81671 }, { x: "2021-04-26T00:00:00Z", y: 82009 }, { x: "2021-04-27T00:00:00Z", y: 82325 }, { x: "2021-04-28T00:00:00Z", y: 82588 }, { x: "2021-04-29T00:00:00Z", y: 82865 }, { x: "2021-04-30T00:00:00Z", y: 83097 }, { x: "2021-05-01T00:00:00Z", y: 83207 }, { x: "2021-05-02T00:00:00Z", y: 83292 }, { x: "2021-05-03T00:00:00Z", y: 83605 }, { x: "2021-05-04T00:00:00Z", y: 83890 }, { x: "2021-05-05T00:00:00Z", y: 84141 }, { x: "2021-05-06T00:00:00Z", y: 84425 }, { x: "2021-05-07T00:00:00Z", y: 84659 }, { x: "2021-05-08T00:00:00Z", y: 84789 }, { x: "2021-05-09T00:00:00Z", y: 84844 }, { x: "2021-05-10T00:00:00Z", y: 85118 }, { x: "2021-05-11T00:00:00Z", y: 85385 }, { x: "2021-05-12T00:00:00Z", y: 85451 }, { x: "2021-05-13T00:00:00Z", y: 85853 }, { x: "2021-05-14T00:00:00Z", y: 86030 }, { x: "2021-05-15T00:00:00Z", y: 86100 }, { x: "2021-05-16T00:00:00Z", y: 86166 }, { x: "2021-05-17T00:00:00Z", y: 86386 }, { x: "2021-05-18T00:00:00Z", y: 86671 }, { x: "2021-05-19T00:00:00Z", y: 86908 }, { x: "2021-05-20T00:00:00Z", y: 87135 }, { x: "2021-05-21T00:00:00Z", y: 87303 }, { x: "2021-05-22T00:00:00Z", y: 87385 }, { x: "2021-05-23T00:00:00Z", y: 87429 }, { x: "2021-05-24T00:00:00Z", y: 87461 }, { x: "2021-05-25T00:00:00Z", y: 87733 }, { x: "2021-05-26T00:00:00Z", y: 88e3 }, { x: "2021-05-27T00:00:00Z", y: 88192 }, { x: "2021-05-28T00:00:00Z", y: 88360 }, { x: "2021-05-29T00:00:00Z", y: 88413 }, { x: "2021-05-30T00:00:00Z", y: 88431 }, { x: "2021-05-31T00:00:00Z", y: 88601 }, { x: "2021-06-01T00:00:00Z", y: 88781 }, { x: "2021-06-02T00:00:00Z", y: 88945 }, { x: "2021-06-03T00:00:00Z", y: 89031 }, { x: "2021-06-04T00:00:00Z", y: 89152 }, { x: "2021-06-05T00:00:00Z", y: 89228 }, { x: "2021-06-06T00:00:00Z", y: 89249 }, { x: "2021-06-07T00:00:00Z", y: 89390 }, { x: "2021-06-08T00:00:00Z", y: 89497 }, { x: "2021-06-09T00:00:00Z", y: 89592 }, { x: "2021-06-10T00:00:00Z", y: 89693 }, { x: "2021-06-11T00:00:00Z", y: 89821 }, { x: "2021-06-12T00:00:00Z", y: 89841 }, { x: "2021-06-13T00:00:00Z", y: 89849 }, { x: "2021-06-14T00:00:00Z", y: 89944 }, { x: "2021-06-15T00:00:00Z", y: 90079 }, { x: "2021-06-16T00:00:00Z", y: 90185 }, { x: "2021-06-17T00:00:00Z", y: 90277 }, { x: "2021-06-18T00:00:00Z", y: 90374 }, { x: "2021-06-19T00:00:00Z", y: 90390 }, { x: "2021-06-20T00:00:00Z", y: 90400 }, { x: "2021-06-21T00:00:00Z", y: 90477 }, { x: "2021-06-22T00:00:00Z", y: 90553 }, { x: "2021-06-23T00:00:00Z", y: 90620 }, { x: "2021-06-24T00:00:00Z", y: 90685 }, { x: "2021-06-25T00:00:00Z", y: 90752 }, { x: "2021-06-26T00:00:00Z", y: 90761 }, { x: "2021-06-27T00:00:00Z", y: 90768 }, { x: "2021-06-28T00:00:00Z", y: 90826 }, { x: "2021-06-29T00:00:00Z", y: 90883 }, { x: "2021-06-30T00:00:00Z", y: 90945 }, { x: "2021-07-01T00:00:00Z", y: 91014 }, { x: "2021-07-02T00:00:00Z", y: 91032 }, { x: "2021-07-03T00:00:00Z", y: 91040 }, { x: "2021-07-04T00:00:00Z", y: 91039 }, { x: "2021-07-05T00:00:00Z", y: 91068 }, { x: "2021-07-06T00:00:00Z", y: 91118 }, { x: "2021-07-07T00:00:00Z", y: 91148 }, { x: "2021-07-08T00:00:00Z", y: 91197 }, { x: "2021-07-09T00:00:00Z", y: 91232 }, { x: "2021-07-10T00:00:00Z", y: 91239 }, { x: "2021-07-11T00:00:00Z", y: 91241 }, { x: "2021-07-12T00:00:00Z", y: 91268 }, { x: "2021-07-13T00:00:00Z", y: 91295 }, { x: "2021-07-14T00:00:00Z", y: 91326 }, { x: "2021-07-15T00:00:00Z", y: 91346 }, { x: "2021-07-16T00:00:00Z", y: 91367 }, { x: "2021-07-17T00:00:00Z", y: 91369 }, { x: "2021-07-18T00:00:00Z", y: 91370 }, { x: "2021-07-19T00:00:00Z", y: 91404 }, { x: "2021-07-20T00:00:00Z", y: 91423 }, { x: "2021-07-21T00:00:00Z", y: 91466 }, { x: "2021-07-22T00:00:00Z", y: 91505 }, { x: "2021-07-23T00:00:00Z", y: 91514 }, { x: "2021-07-24T00:00:00Z", y: 91531 }, { x: "2021-07-25T00:00:00Z", y: 91534 }, { x: "2021-07-26T00:00:00Z", y: 91573 }, { x: "2021-07-27T00:00:00Z", y: 91592 }, { x: "2021-07-28T00:00:00Z", y: 91709 }, { x: "2021-07-29T00:00:00Z", y: 91622 }, { x: "2021-07-30T00:00:00Z", y: 91663 }, { x: "2021-07-31T00:00:00Z", y: 91666 }, { x: "2021-08-01T00:00:00Z", y: 91666 }, { x: "2021-08-02T00:00:00Z", y: 91685 }, { x: "2021-08-03T00:00:00Z", y: 91710 }, { x: "2021-08-04T00:00:00Z", y: 91736 }, { x: "2021-08-05T00:00:00Z", y: 91761 }, { x: "2021-08-06T00:00:00Z", y: 91785 }, { x: "2021-08-07T00:00:00Z", y: 91789 }, { x: "2021-08-08T00:00:00Z", y: 91791 }, { x: "2021-08-09T00:00:00Z", y: 91810 }, { x: "2021-08-10T00:00:00Z", y: 91824 }, { x: "2021-08-11T00:00:00Z", y: 91841 }, { x: "2021-08-12T00:00:00Z", y: 91860 }, { x: "2021-08-13T00:00:00Z", y: 91871 }, { x: "2021-08-14T00:00:00Z", y: 91874 }, { x: "2021-08-15T00:00:00Z", y: 91878 }, { x: "2021-08-16T00:00:00Z", y: 91905 }, { x: "2021-08-17T00:00:00Z", y: 91927 }, { x: "2021-08-18T00:00:00Z", y: 91949 }, { x: "2021-08-19T00:00:00Z", y: 91963 }, { x: "2021-08-20T00:00:00Z", y: 91980 }, { x: "2021-08-21T00:00:00Z", y: 91983 }, { x: "2021-08-22T00:00:00Z", y: 91987 }, { x: "2021-08-23T00:00:00Z", y: 92028 }, { x: "2021-08-24T00:00:00Z", y: 92067 }, { x: "2021-08-25T00:00:00Z", y: 92090 }, { x: "2021-08-26T00:00:00Z", y: 92108 }, { x: "2021-08-27T00:00:00Z", y: 92125 }, { x: "2021-08-28T00:00:00Z", y: 92136 }, { x: "2021-08-29T00:00:00Z", y: 92146 }, { x: "2021-08-30T00:00:00Z", y: 92208 }, { x: "2021-08-31T00:00:00Z", y: 92229 }, { x: "2021-09-01T00:00:00Z", y: 92262 }, { x: "2021-09-02T00:00:00Z", y: 92307 }, { x: "2021-09-03T00:00:00Z", y: 92331 }, { x: "2021-09-04T00:00:00Z", y: 92351 }, { x: "2021-09-05T00:00:00Z", y: 92360 }, { x: "2021-09-06T00:00:00Z", y: 92419 }, { x: "2021-09-07T00:00:00Z", y: 92463 }, { x: "2021-09-08T00:00:00Z", y: 92463 }, { x: "2021-09-09T00:00:00Z", y: 92559 }, { x: "2021-09-10T00:00:00Z", y: 92604 }, { x: "2021-09-11T00:00:00Z", y: 92612 }, { x: "2021-09-12T00:00:00Z", y: 92625 }, { x: "2021-09-13T00:00:00Z", y: 92694 }, { x: "2021-09-14T00:00:00Z", y: 92776 }, { x: "2021-09-15T00:00:00Z", y: 92843 }, { x: "2021-09-16T00:00:00Z", y: 92906 }, { x: "2021-09-17T00:00:00Z", y: 92928 }, { x: "2021-09-18T00:00:00Z", y: 92964 }, { x: "2021-09-19T00:00:00Z", y: 92977 }, { x: "2021-09-20T00:00:00Z", y: 93058 }, { x: "2021-09-21T00:00:00Z", y: 93129 }, { x: "2021-09-22T00:00:00Z", y: 93243 }, { x: "2021-09-23T00:00:00Z", y: 93310 }, { x: "2021-09-24T00:00:00Z", y: 93370 }, { x: "2021-09-25T00:00:00Z", y: 93398 }, { x: "2021-09-26T00:00:00Z", y: 93409 }, { x: "2021-09-27T00:00:00Z", y: 93509 }, { x: "2021-09-28T00:00:00Z", y: 93576 }, { x: "2021-09-29T00:00:00Z", y: 93643 }, { x: "2021-09-30T00:00:00Z", y: 93715 }, { x: "2021-10-01T00:00:00Z", y: 93781 }, { x: "2021-10-02T00:00:00Z", y: 93791 }, { x: "2021-10-03T00:00:00Z", y: 93798 }, { x: "2021-10-04T00:00:00Z", y: 93887 }, { x: "2021-10-05T00:00:00Z", y: 93963 }, { x: "2021-10-06T00:00:00Z", y: 94031 }, { x: "2021-10-07T00:00:00Z", y: 94117 }, { x: "2021-10-08T00:00:00Z", y: 94182 }, { x: "2021-10-09T00:00:00Z", y: 94206 }, { x: "2021-10-10T00:00:00Z", y: 94213 }, { x: "2021-10-11T00:00:00Z", y: 94308 }, { x: "2021-10-12T00:00:00Z", y: 94393 }, { x: "2021-10-13T00:00:00Z", y: 94407 }, { x: "2021-10-14T00:00:00Z", y: 94530 }, { x: "2021-10-15T00:00:00Z", y: 94605 }, { x: "2021-10-16T00:00:00Z", y: 94622 }, { x: "2021-10-17T00:00:00Z", y: 94632 }, { x: "2021-10-18T00:00:00Z", y: 94720 }, { x: "2021-10-19T00:00:00Z", y: 94812 }, { x: "2021-10-20T00:00:00Z", y: 94886 }, { x: "2021-10-21T00:00:00Z", y: 94995 }, { x: "2021-10-22T00:00:00Z", y: 95081 }, { x: "2021-10-23T00:00:00Z", y: 95104 }, { x: "2021-10-24T00:00:00Z", y: 95121 }, { x: "2021-10-25T00:00:00Z", y: 95148 }, { x: "2021-10-26T00:00:00Z", y: 95365 }, { x: "2021-10-27T00:00:00Z", y: 95489 }, { x: "2021-10-28T00:00:00Z", y: 95522 }, { x: "2021-10-29T00:00:00Z", y: 95701 }, { x: "2021-10-30T00:00:00Z", y: 95734 }, { x: "2021-10-31T00:00:00Z", y: 95735 }, { x: "2021-11-01T00:00:00Z", y: 95838 }, { x: "2021-11-02T00:00:00Z", y: 96031 }, { x: "2021-11-03T00:00:00Z", y: 96196 }, { x: "2021-11-04T00:00:00Z", y: 96351 }, { x: "2021-11-05T00:00:00Z", y: 96492 }, { x: "2021-11-06T00:00:00Z", y: 96529 }, { x: "2021-11-07T00:00:00Z", y: 96563 }, { x: "2021-11-08T00:00:00Z", y: 96731 }, { x: "2021-11-09T00:00:00Z", y: 96968 }, { x: "2021-11-10T00:00:00Z", y: 97203 }, { x: "2021-11-11T00:00:00Z", y: 97394 }, { x: "2021-11-12T00:00:00Z", y: 97623 }, { x: "2021-11-13T00:00:00Z", y: 97677 }] }, { label: "Greece", data: [{ x: "2020-01-22T00:00:00Z", y: 0 }, { x: "2020-01-23T00:00:00Z", y: 0 }, { x: "2020-01-24T00:00:00Z", y: 0 }, { x: "2020-01-25T00:00:00Z", y: 0 }, { x: "2020-01-26T00:00:00Z", y: 0 }, { x: "2020-01-27T00:00:00Z", y: 0 }, { x: "2020-01-28T00:00:00Z", y: 0 }, { x: "2020-01-29T00:00:00Z", y: 0 }, { x: "2020-01-30T00:00:00Z", y: 0 }, { x: "2020-01-31T00:00:00Z", y: 0 }, { x: "2020-02-01T00:00:00Z", y: 0 }, { x: "2020-02-02T00:00:00Z", y: 0 }, { x: "2020-02-03T00:00:00Z", y: 0 }, { x: "2020-02-04T00:00:00Z", y: 0 }, { x: "2020-02-05T00:00:00Z", y: 0 }, { x: "2020-02-06T00:00:00Z", y: 0 }, { x: "2020-02-07T00:00:00Z", y: 0 }, { x: "2020-02-08T00:00:00Z", y: 0 }, { x: "2020-02-09T00:00:00Z", y: 0 }, { x: "2020-02-10T00:00:00Z", y: 0 }, { x: "2020-02-11T00:00:00Z", y: 0 }, { x: "2020-02-12T00:00:00Z", y: 0 }, { x: "2020-02-13T00:00:00Z", y: 0 }, { x: "2020-02-14T00:00:00Z", y: 0 }, { x: "2020-02-15T00:00:00Z", y: 0 }, { x: "2020-02-16T00:00:00Z", y: 0 }, { x: "2020-02-17T00:00:00Z", y: 0 }, { x: "2020-02-18T00:00:00Z", y: 0 }, { x: "2020-02-19T00:00:00Z", y: 0 }, { x: "2020-02-20T00:00:00Z", y: 0 }, { x: "2020-02-21T00:00:00Z", y: 0 }, { x: "2020-02-22T00:00:00Z", y: 0 }, { x: "2020-02-23T00:00:00Z", y: 0 }, { x: "2020-02-24T00:00:00Z", y: 0 }, { x: "2020-02-25T00:00:00Z", y: 0 }, { x: "2020-02-26T00:00:00Z", y: 0 }, { x: "2020-02-27T00:00:00Z", y: 0 }, { x: "2020-02-28T00:00:00Z", y: 0 }, { x: "2020-02-29T00:00:00Z", y: 0 }, { x: "2020-03-01T00:00:00Z", y: 0 }, { x: "2020-03-02T00:00:00Z", y: 0 }, { x: "2020-03-03T00:00:00Z", y: 0 }, { x: "2020-03-04T00:00:00Z", y: 0 }, { x: "2020-03-05T00:00:00Z", y: 0 }, { x: "2020-03-06T00:00:00Z", y: 0 }, { x: "2020-03-07T00:00:00Z", y: 0 }, { x: "2020-03-08T00:00:00Z", y: 0 }, { x: "2020-03-09T00:00:00Z", y: 0 }, { x: "2020-03-10T00:00:00Z", y: 0 }, { x: "2020-03-11T00:00:00Z", y: 1 }, { x: "2020-03-12T00:00:00Z", y: 1 }, { x: "2020-03-13T00:00:00Z", y: 1 }, { x: "2020-03-14T00:00:00Z", y: 3 }, { x: "2020-03-15T00:00:00Z", y: 4 }, { x: "2020-03-16T00:00:00Z", y: 4 }, { x: "2020-03-17T00:00:00Z", y: 5 }, { x: "2020-03-18T00:00:00Z", y: 5 }, { x: "2020-03-19T00:00:00Z", y: 6 }, { x: "2020-03-20T00:00:00Z", y: 8 }, { x: "2020-03-21T00:00:00Z", y: 13 }, { x: "2020-03-22T00:00:00Z", y: 15 }, { x: "2020-03-23T00:00:00Z", y: 17 }, { x: "2020-03-24T00:00:00Z", y: 20 }, { x: "2020-03-25T00:00:00Z", y: 22 }, { x: "2020-03-26T00:00:00Z", y: 22 }, { x: "2020-03-27T00:00:00Z", y: 22 }, { x: "2020-03-28T00:00:00Z", y: 22 }, { x: "2020-03-29T00:00:00Z", y: 38 }, { x: "2020-03-30T00:00:00Z", y: 38 }, { x: "2020-03-31T00:00:00Z", y: 38 }, { x: "2020-04-01T00:00:00Z", y: 38 }, { x: "2020-04-02T00:00:00Z", y: 38 }, { x: "2020-04-03T00:00:00Z", y: 59 }, { x: "2020-04-04T00:00:00Z", y: 68 }, { x: "2020-04-05T00:00:00Z", y: 73 }, { x: "2020-04-06T00:00:00Z", y: 79 }, { x: "2020-04-07T00:00:00Z", y: 81 }, { x: "2020-04-08T00:00:00Z", y: 83 }, { x: "2020-04-09T00:00:00Z", y: 86 }, { x: "2020-04-10T00:00:00Z", y: 90 }, { x: "2020-04-11T00:00:00Z", y: 93 }, { x: "2020-04-12T00:00:00Z", y: 93 }, { x: "2020-04-13T00:00:00Z", y: 99 }, { x: "2020-04-14T00:00:00Z", y: 101 }, { x: "2020-04-15T00:00:00Z", y: 102 }, { x: "2020-04-16T00:00:00Z", y: 105 }, { x: "2020-04-17T00:00:00Z", y: 108 }, { x: "2020-04-18T00:00:00Z", y: 110 }, { x: "2020-04-19T00:00:00Z", y: 116 }, { x: "2020-04-20T00:00:00Z", y: 116 }, { x: "2020-04-21T00:00:00Z", y: 121 }, { x: "2020-04-22T00:00:00Z", y: 121 }, { x: "2020-04-23T00:00:00Z", y: 125 }, { x: "2020-04-24T00:00:00Z", y: 130 }, { x: "2020-04-25T00:00:00Z", y: 130 }, { x: "2020-04-26T00:00:00Z", y: 134 }, { x: "2020-04-27T00:00:00Z", y: 136 }, { x: "2020-04-28T00:00:00Z", y: 138 }, { x: "2020-04-29T00:00:00Z", y: 139 }, { x: "2020-04-30T00:00:00Z", y: 140 }, { x: "2020-05-01T00:00:00Z", y: 140 }, { x: "2020-05-02T00:00:00Z", y: 143 }, { x: "2020-05-03T00:00:00Z", y: 144 }, { x: "2020-05-04T00:00:00Z", y: 146 }, { x: "2020-05-05T00:00:00Z", y: 146 }, { x: "2020-05-06T00:00:00Z", y: 147 }, { x: "2020-05-07T00:00:00Z", y: 148 }, { x: "2020-05-08T00:00:00Z", y: 150 }, { x: "2020-05-09T00:00:00Z", y: 151 }, { x: "2020-05-10T00:00:00Z", y: 151 }, { x: "2020-05-11T00:00:00Z", y: 151 }, { x: "2020-05-12T00:00:00Z", y: 152 }, { x: "2020-05-13T00:00:00Z", y: 155 }, { x: "2020-05-14T00:00:00Z", y: 156 }, { x: "2020-05-15T00:00:00Z", y: 160 }, { x: "2020-05-16T00:00:00Z", y: 162 }, { x: "2020-05-17T00:00:00Z", y: 163 }, { x: "2020-05-18T00:00:00Z", y: 165 }, { x: "2020-05-19T00:00:00Z", y: 165 }, { x: "2020-05-20T00:00:00Z", y: 166 }, { x: "2020-05-21T00:00:00Z", y: 168 }, { x: "2020-05-22T00:00:00Z", y: 169 }, { x: "2020-05-23T00:00:00Z", y: 171 }, { x: "2020-05-24T00:00:00Z", y: 171 }, { x: "2020-05-25T00:00:00Z", y: 172 }, { x: "2020-05-26T00:00:00Z", y: 173 }, { x: "2020-05-27T00:00:00Z", y: 173 }, { x: "2020-05-28T00:00:00Z", y: 175 }, { x: "2020-05-29T00:00:00Z", y: 175 }, { x: "2020-05-30T00:00:00Z", y: 175 }, { x: "2020-05-31T00:00:00Z", y: 175 }, { x: "2020-06-01T00:00:00Z", y: 179 }, { x: "2020-06-02T00:00:00Z", y: 179 }, { x: "2020-06-03T00:00:00Z", y: 180 }, { x: "2020-06-04T00:00:00Z", y: 180 }, { x: "2020-06-05T00:00:00Z", y: 182 }, { x: "2020-06-06T00:00:00Z", y: 182 }, { x: "2020-06-07T00:00:00Z", y: 182 }, { x: "2020-06-08T00:00:00Z", y: 182 }, { x: "2020-06-09T00:00:00Z", y: 183 }, { x: "2020-06-10T00:00:00Z", y: 183 }, { x: "2020-06-11T00:00:00Z", y: 183 }, { x: "2020-06-12T00:00:00Z", y: 183 }, { x: "2020-06-13T00:00:00Z", y: 183 }, { x: "2020-06-14T00:00:00Z", y: 183 }, { x: "2020-06-15T00:00:00Z", y: 184 }, { x: "2020-06-16T00:00:00Z", y: 185 }, { x: "2020-06-17T00:00:00Z", y: 187 }, { x: "2020-06-18T00:00:00Z", y: 188 }, { x: "2020-06-19T00:00:00Z", y: 189 }, { x: "2020-06-20T00:00:00Z", y: 190 }, { x: "2020-06-21T00:00:00Z", y: 190 }, { x: "2020-06-22T00:00:00Z", y: 190 }, { x: "2020-06-23T00:00:00Z", y: 190 }, { x: "2020-06-24T00:00:00Z", y: 190 }, { x: "2020-06-25T00:00:00Z", y: 191 }, { x: "2020-06-26T00:00:00Z", y: 191 }, { x: "2020-06-27T00:00:00Z", y: 191 }, { x: "2020-06-28T00:00:00Z", y: 191 }, { x: "2020-06-29T00:00:00Z", y: 191 }, { x: "2020-06-30T00:00:00Z", y: 192 }, { x: "2020-07-01T00:00:00Z", y: 192 }, { x: "2020-07-02T00:00:00Z", y: 192 }, { x: "2020-07-03T00:00:00Z", y: 192 }, { x: "2020-07-04T00:00:00Z", y: 192 }, { x: "2020-07-05T00:00:00Z", y: 192 }, { x: "2020-07-06T00:00:00Z", y: 192 }, { x: "2020-07-07T00:00:00Z", y: 193 }, { x: "2020-07-08T00:00:00Z", y: 193 }, { x: "2020-07-09T00:00:00Z", y: 193 }, { x: "2020-07-10T00:00:00Z", y: 193 }, { x: "2020-07-11T00:00:00Z", y: 193 }, { x: "2020-07-12T00:00:00Z", y: 193 }, { x: "2020-07-13T00:00:00Z", y: 193 }, { x: "2020-07-14T00:00:00Z", y: 193 }, { x: "2020-07-15T00:00:00Z", y: 193 }, { x: "2020-07-16T00:00:00Z", y: 193 }, { x: "2020-07-17T00:00:00Z", y: 194 }, { x: "2020-07-18T00:00:00Z", y: 194 }, { x: "2020-07-19T00:00:00Z", y: 194 }, { x: "2020-07-20T00:00:00Z", y: 195 }, { x: "2020-07-21T00:00:00Z", y: 197 }, { x: "2020-07-22T00:00:00Z", y: 200 }, { x: "2020-07-23T00:00:00Z", y: 201 }, { x: "2020-07-24T00:00:00Z", y: 201 }, { x: "2020-07-25T00:00:00Z", y: 201 }, { x: "2020-07-26T00:00:00Z", y: 202 }, { x: "2020-07-27T00:00:00Z", y: 202 }, { x: "2020-07-28T00:00:00Z", y: 203 }, { x: "2020-07-29T00:00:00Z", y: 203 }, { x: "2020-07-30T00:00:00Z", y: 203 }, { x: "2020-07-31T00:00:00Z", y: 206 }, { x: "2020-08-01T00:00:00Z", y: 206 }, { x: "2020-08-02T00:00:00Z", y: 208 }, { x: "2020-08-03T00:00:00Z", y: 209 }, { x: "2020-08-04T00:00:00Z", y: 209 }, { x: "2020-08-05T00:00:00Z", y: 210 }, { x: "2020-08-06T00:00:00Z", y: 210 }, { x: "2020-08-07T00:00:00Z", y: 210 }, { x: "2020-08-08T00:00:00Z", y: 211 }, { x: "2020-08-09T00:00:00Z", y: 212 }, { x: "2020-08-10T00:00:00Z", y: 213 }, { x: "2020-08-11T00:00:00Z", y: 214 }, { x: "2020-08-12T00:00:00Z", y: 216 }, { x: "2020-08-13T00:00:00Z", y: 221 }, { x: "2020-08-14T00:00:00Z", y: 223 }, { x: "2020-08-15T00:00:00Z", y: 226 }, { x: "2020-08-16T00:00:00Z", y: 228 }, { x: "2020-08-17T00:00:00Z", y: 230 }, { x: "2020-08-18T00:00:00Z", y: 232 }, { x: "2020-08-19T00:00:00Z", y: 235 }, { x: "2020-08-20T00:00:00Z", y: 235 }, { x: "2020-08-21T00:00:00Z", y: 238 }, { x: "2020-08-22T00:00:00Z", y: 240 }, { x: "2020-08-23T00:00:00Z", y: 242 }, { x: "2020-08-24T00:00:00Z", y: 242 }, { x: "2020-08-25T00:00:00Z", y: 243 }, { x: "2020-08-26T00:00:00Z", y: 243 }, { x: "2020-08-27T00:00:00Z", y: 254 }, { x: "2020-08-28T00:00:00Z", y: 259 }, { x: "2020-08-29T00:00:00Z", y: 260 }, { x: "2020-08-30T00:00:00Z", y: 262 }, { x: "2020-08-31T00:00:00Z", y: 266 }, { x: "2020-09-01T00:00:00Z", y: 271 }, { x: "2020-09-02T00:00:00Z", y: 273 }, { x: "2020-09-03T00:00:00Z", y: 278 }, { x: "2020-09-04T00:00:00Z", y: 279 }, { x: "2020-09-05T00:00:00Z", y: 280 }, { x: "2020-09-06T00:00:00Z", y: 284 }, { x: "2020-09-07T00:00:00Z", y: 289 }, { x: "2020-09-08T00:00:00Z", y: 290 }, { x: "2020-09-09T00:00:00Z", y: 293 }, { x: "2020-09-10T00:00:00Z", y: 297 }, { x: "2020-09-11T00:00:00Z", y: 300 }, { x: "2020-09-12T00:00:00Z", y: 302 }, { x: "2020-09-13T00:00:00Z", y: 305 }, { x: "2020-09-14T00:00:00Z", y: 310 }, { x: "2020-09-15T00:00:00Z", y: 313 }, { x: "2020-09-16T00:00:00Z", y: 316 }, { x: "2020-09-17T00:00:00Z", y: 325 }, { x: "2020-09-18T00:00:00Z", y: 327 }, { x: "2020-09-19T00:00:00Z", y: 331 }, { x: "2020-09-20T00:00:00Z", y: 338 }, { x: "2020-09-21T00:00:00Z", y: 344 }, { x: "2020-09-22T00:00:00Z", y: 352 }, { x: "2020-09-23T00:00:00Z", y: 357 }, { x: "2020-09-24T00:00:00Z", y: 366 }, { x: "2020-09-25T00:00:00Z", y: 369 }, { x: "2020-09-26T00:00:00Z", y: 376 }, { x: "2020-09-27T00:00:00Z", y: 379 }, { x: "2020-09-28T00:00:00Z", y: 383 }, { x: "2020-09-29T00:00:00Z", y: 388 }, { x: "2020-09-30T00:00:00Z", y: 391 }, { x: "2020-10-01T00:00:00Z", y: 393 }, { x: "2020-10-02T00:00:00Z", y: 398 }, { x: "2020-10-03T00:00:00Z", y: 405 }, { x: "2020-10-04T00:00:00Z", y: 409 }, { x: "2020-10-05T00:00:00Z", y: 417 }, { x: "2020-10-06T00:00:00Z", y: 420 }, { x: "2020-10-07T00:00:00Z", y: 424 }, { x: "2020-10-08T00:00:00Z", y: 430 }, { x: "2020-10-09T00:00:00Z", y: 431 }, { x: "2020-10-10T00:00:00Z", y: 436 }, { x: "2020-10-11T00:00:00Z", y: 449 }, { x: "2020-10-12T00:00:00Z", y: 456 }, { x: "2020-10-13T00:00:00Z", y: 462 }, { x: "2020-10-14T00:00:00Z", y: 469 }, { x: "2020-10-15T00:00:00Z", y: 482 }, { x: "2020-10-16T00:00:00Z", y: 490 }, { x: "2020-10-17T00:00:00Z", y: 500 }, { x: "2020-10-18T00:00:00Z", y: 509 }, { x: "2020-10-19T00:00:00Z", y: 520 }, { x: "2020-10-20T00:00:00Z", y: 528 }, { x: "2020-10-21T00:00:00Z", y: 534 }, { x: "2020-10-22T00:00:00Z", y: 549 }, { x: "2020-10-23T00:00:00Z", y: 559 }, { x: "2020-10-24T00:00:00Z", y: 564 }, { x: "2020-10-25T00:00:00Z", y: 574 }, { x: "2020-10-26T00:00:00Z", y: 581 }, { x: "2020-10-27T00:00:00Z", y: 593 }, { x: "2020-10-28T00:00:00Z", y: 603 }, { x: "2020-10-29T00:00:00Z", y: 615 }, { x: "2020-10-30T00:00:00Z", y: 620 }, { x: "2020-10-31T00:00:00Z", y: 626 }, { x: "2020-11-01T00:00:00Z", y: 635 }, { x: "2020-11-02T00:00:00Z", y: 642 }, { x: "2020-11-03T00:00:00Z", y: 655 }, { x: "2020-11-04T00:00:00Z", y: 673 }, { x: "2020-11-05T00:00:00Z", y: 702 }, { x: "2020-11-06T00:00:00Z", y: 715 }, { x: "2020-11-07T00:00:00Z", y: 749 }, { x: "2020-11-08T00:00:00Z", y: 784 }, { x: "2020-11-09T00:00:00Z", y: 825 }, { x: "2020-11-10T00:00:00Z", y: 866 }, { x: "2020-11-11T00:00:00Z", y: 909 }, { x: "2020-11-12T00:00:00Z", y: 959 }, { x: "2020-11-13T00:00:00Z", y: 997 }, { x: "2020-11-14T00:00:00Z", y: 1035 }, { x: "2020-11-15T00:00:00Z", y: 1106 }, { x: "2020-11-16T00:00:00Z", y: 1165 }, { x: "2020-11-17T00:00:00Z", y: 1228 }, { x: "2020-11-18T00:00:00Z", y: 1288 }, { x: "2020-11-19T00:00:00Z", y: 1347 }, { x: "2020-11-20T00:00:00Z", y: 1419 }, { x: "2020-11-21T00:00:00Z", y: 1527 }, { x: "2020-11-22T00:00:00Z", y: 1630 }, { x: "2020-11-23T00:00:00Z", y: 1714 }, { x: "2020-11-24T00:00:00Z", y: 1815 }, { x: "2020-11-25T00:00:00Z", y: 1902 }, { x: "2020-11-26T00:00:00Z", y: 2001 }, { x: "2020-11-27T00:00:00Z", y: 2102 }, { x: "2020-11-28T00:00:00Z", y: 2223 }, { x: "2020-11-29T00:00:00Z", y: 2321 }, { x: "2020-11-30T00:00:00Z", y: 2406 }, { x: "2020-12-01T00:00:00Z", y: 2517 }, { x: "2020-12-02T00:00:00Z", y: 2606 }, { x: "2020-12-03T00:00:00Z", y: 2706 }, { x: "2020-12-04T00:00:00Z", y: 2804 }, { x: "2020-12-05T00:00:00Z", y: 2902 }, { x: "2020-12-06T00:00:00Z", y: 3003 }, { x: "2020-12-07T00:00:00Z", y: 3092 }, { x: "2020-12-08T00:00:00Z", y: 3194 }, { x: "2020-12-09T00:00:00Z", y: 3289 }, { x: "2020-12-10T00:00:00Z", y: 3370 }, { x: "2020-12-11T00:00:00Z", y: 3472 }, { x: "2020-12-12T00:00:00Z", y: 3540 }, { x: "2020-12-13T00:00:00Z", y: 3625 }, { x: "2020-12-14T00:00:00Z", y: 3687 }, { x: "2020-12-15T00:00:00Z", y: 3785 }, { x: "2020-12-16T00:00:00Z", y: 3870 }, { x: "2020-12-17T00:00:00Z", y: 3948 }, { x: "2020-12-18T00:00:00Z", y: 4044 }, { x: "2020-12-19T00:00:00Z", y: 4102 }, { x: "2020-12-20T00:00:00Z", y: 4172 }, { x: "2020-12-21T00:00:00Z", y: 4257 }, { x: "2020-12-22T00:00:00Z", y: 4340 }, { x: "2020-12-23T00:00:00Z", y: 4402 }, { x: "2020-12-24T00:00:00Z", y: 4457 }, { x: "2020-12-25T00:00:00Z", y: 4507 }, { x: "2020-12-26T00:00:00Z", y: 4553 }, { x: "2020-12-27T00:00:00Z", y: 4606 }, { x: "2020-12-28T00:00:00Z", y: 4672 }, { x: "2020-12-29T00:00:00Z", y: 4730 }, { x: "2020-12-30T00:00:00Z", y: 4788 }, { x: "2020-12-31T00:00:00Z", y: 4838 }, { x: "2021-01-01T00:00:00Z", y: 4881 }, { x: "2021-01-02T00:00:00Z", y: 4921 }, { x: "2021-01-03T00:00:00Z", y: 4957 }, { x: "2021-01-04T00:00:00Z", y: 5011 }, { x: "2021-01-05T00:00:00Z", y: 5051 }, { x: "2021-01-06T00:00:00Z", y: 5099 }, { x: "2021-01-07T00:00:00Z", y: 5146 }, { x: "2021-01-08T00:00:00Z", y: 5195 }, { x: "2021-01-09T00:00:00Z", y: 5227 }, { x: "2021-01-10T00:00:00Z", y: 5263 }, { x: "2021-01-11T00:00:00Z", y: 5302 }, { x: "2021-01-12T00:00:00Z", y: 5329 }, { x: "2021-01-13T00:00:00Z", y: 5354 }, { x: "2021-01-14T00:00:00Z", y: 5387 }, { x: "2021-01-15T00:00:00Z", y: 5421 }, { x: "2021-01-16T00:00:00Z", y: 5441 }, { x: "2021-01-17T00:00:00Z", y: 5469 }, { x: "2021-01-18T00:00:00Z", y: 5488 }, { x: "2021-01-19T00:00:00Z", y: 5518 }, { x: "2021-01-20T00:00:00Z", y: 5545 }, { x: "2021-01-21T00:00:00Z", y: 5570 }, { x: "2021-01-22T00:00:00Z", y: 5598 }, { x: "2021-01-23T00:00:00Z", y: 5622 }, { x: "2021-01-24T00:00:00Z", y: 5646 }, { x: "2021-01-25T00:00:00Z", y: 5671 }, { x: "2021-01-26T00:00:00Z", y: 5692 }, { x: "2021-01-27T00:00:00Z", y: 5724 }, { x: "2021-01-28T00:00:00Z", y: 5742 }, { x: "2021-01-29T00:00:00Z", y: 5764 }, { x: "2021-01-30T00:00:00Z", y: 5779 }, { x: "2021-01-31T00:00:00Z", y: 5796 }, { x: "2021-02-01T00:00:00Z", y: 5829 }, { x: "2021-02-02T00:00:00Z", y: 5851 }, { x: "2021-02-03T00:00:00Z", y: 5878 }, { x: "2021-02-04T00:00:00Z", y: 5903 }, { x: "2021-02-05T00:00:00Z", y: 5922 }, { x: "2021-02-06T00:00:00Z", y: 5951 }, { x: "2021-02-07T00:00:00Z", y: 5972 }, { x: "2021-02-08T00:00:00Z", y: 5997 }, { x: "2021-02-09T00:00:00Z", y: 6017 }, { x: "2021-02-10T00:00:00Z", y: 6034 }, { x: "2021-02-11T00:00:00Z", y: 6056 }, { x: "2021-02-12T00:00:00Z", y: 6077 }, { x: "2021-02-13T00:00:00Z", y: 6103 }, { x: "2021-02-14T00:00:00Z", y: 6126 }, { x: "2021-02-15T00:00:00Z", y: 6152 }, { x: "2021-02-16T00:00:00Z", y: 6181 }, { x: "2021-02-17T00:00:00Z", y: 6194 }, { x: "2021-02-18T00:00:00Z", y: 6221 }, { x: "2021-02-19T00:00:00Z", y: 6249 }, { x: "2021-02-20T00:00:00Z", y: 6272 }, { x: "2021-02-21T00:00:00Z", y: 6297 }, { x: "2021-02-22T00:00:00Z", y: 6321 }, { x: "2021-02-23T00:00:00Z", y: 6343 }, { x: "2021-02-24T00:00:00Z", y: 6371 }, { x: "2021-02-25T00:00:00Z", y: 6410 }, { x: "2021-02-26T00:00:00Z", y: 6439 }, { x: "2021-02-27T00:00:00Z", y: 6468 }, { x: "2021-02-28T00:00:00Z", y: 6504 }, { x: "2021-03-01T00:00:00Z", y: 6534 }, { x: "2021-03-02T00:00:00Z", y: 6557 }, { x: "2021-03-03T00:00:00Z", y: 6597 }, { x: "2021-03-04T00:00:00Z", y: 6632 }, { x: "2021-03-05T00:00:00Z", y: 6664 }, { x: "2021-03-06T00:00:00Z", y: 6705 }, { x: "2021-03-07T00:00:00Z", y: 6758 }, { x: "2021-03-08T00:00:00Z", y: 6797 }, { x: "2021-03-09T00:00:00Z", y: 6843 }, { x: "2021-03-10T00:00:00Z", y: 6886 }, { x: "2021-03-11T00:00:00Z", y: 6937 }, { x: "2021-03-12T00:00:00Z", y: 6986 }, { x: "2021-03-13T00:00:00Z", y: 7038 }, { x: "2021-03-14T00:00:00Z", y: 7091 }, { x: "2021-03-15T00:00:00Z", y: 7137 }, { x: "2021-03-16T00:00:00Z", y: 7196 }, { x: "2021-03-17T00:00:00Z", y: 7252 }, { x: "2021-03-18T00:00:00Z", y: 7297 }, { x: "2021-03-19T00:00:00Z", y: 7361 }, { x: "2021-03-20T00:00:00Z", y: 7421 }, { x: "2021-03-21T00:00:00Z", y: 7462 }, { x: "2021-03-22T00:00:00Z", y: 7531 }, { x: "2021-03-23T00:00:00Z", y: 7582 }, { x: "2021-03-24T00:00:00Z", y: 7649 }, { x: "2021-03-25T00:00:00Z", y: 7701 }, { x: "2021-03-26T00:00:00Z", y: 7754 }, { x: "2021-03-27T00:00:00Z", y: 7826 }, { x: "2021-03-28T00:00:00Z", y: 7880 }, { x: "2021-03-29T00:00:00Z", y: 7945 }, { x: "2021-03-30T00:00:00Z", y: 8017 }, { x: "2021-03-31T00:00:00Z", y: 8093 }, { x: "2021-04-01T00:00:00Z", y: 8160 }, { x: "2021-04-02T00:00:00Z", y: 8232 }, { x: "2021-04-03T00:00:00Z", y: 8302 }, { x: "2021-04-04T00:00:00Z", y: 8380 }, { x: "2021-04-05T00:00:00Z", y: 8453 }, { x: "2021-04-06T00:00:00Z", y: 8532 }, { x: "2021-04-07T00:00:00Z", y: 8607 }, { x: "2021-04-08T00:00:00Z", y: 8680 }, { x: "2021-04-09T00:00:00Z", y: 8758 }, { x: "2021-04-10T00:00:00Z", y: 8833 }, { x: "2021-04-11T00:00:00Z", y: 8885 }, { x: "2021-04-12T00:00:00Z", y: 8961 }, { x: "2021-04-13T00:00:00Z", y: 9054 }, { x: "2021-04-14T00:00:00Z", y: 9135 }, { x: "2021-04-15T00:00:00Z", y: 9239 }, { x: "2021-04-16T00:00:00Z", y: 9330 }, { x: "2021-04-17T00:00:00Z", y: 9397 }, { x: "2021-04-18T00:00:00Z", y: 9462 }, { x: "2021-04-19T00:00:00Z", y: 9540 }, { x: "2021-04-20T00:00:00Z", y: 9627 }, { x: "2021-04-21T00:00:00Z", y: 9713 }, { x: "2021-04-22T00:00:00Z", y: 9788 }, { x: "2021-04-23T00:00:00Z", y: 9864 }, { x: "2021-04-24T00:00:00Z", y: 9950 }, { x: "2021-04-25T00:00:00Z", y: 10007 }, { x: "2021-04-26T00:00:00Z", y: 10087 }, { x: "2021-04-27T00:00:00Z", y: 10179 }, { x: "2021-04-28T00:00:00Z", y: 10242 }, { x: "2021-04-29T00:00:00Z", y: 10315 }, { x: "2021-04-30T00:00:00Z", y: 10381 }, { x: "2021-05-01T00:00:00Z", y: 10453 }, { x: "2021-05-02T00:00:00Z", y: 10453 }, { x: "2021-05-03T00:00:00Z", y: 10587 }, { x: "2021-05-04T00:00:00Z", y: 10668 }, { x: "2021-05-05T00:00:00Z", y: 10764 }, { x: "2021-05-06T00:00:00Z", y: 10847 }, { x: "2021-05-07T00:00:00Z", y: 10910 }, { x: "2021-05-08T00:00:00Z", y: 10978 }, { x: "2021-05-09T00:00:00Z", y: 11029 }, { x: "2021-05-10T00:00:00Z", y: 11089 }, { x: "2021-05-11T00:00:00Z", y: 11141 }, { x: "2021-05-12T00:00:00Z", y: 11211 }, { x: "2021-05-13T00:00:00Z", y: 11266 }, { x: "2021-05-14T00:00:00Z", y: 11322 }, { x: "2021-05-15T00:00:00Z", y: 11365 }, { x: "2021-05-16T00:00:00Z", y: 11415 }, { x: "2021-05-17T00:00:00Z", y: 11471 }, { x: "2021-05-18T00:00:00Z", y: 11534 }, { x: "2021-05-19T00:00:00Z", y: 11587 }, { x: "2021-05-20T00:00:00Z", y: 11641 }, { x: "2021-05-21T00:00:00Z", y: 11697 }, { x: "2021-05-22T00:00:00Z", y: 11734 }, { x: "2021-05-23T00:00:00Z", y: 11772 }, { x: "2021-05-24T00:00:00Z", y: 11822 }, { x: "2021-05-25T00:00:00Z", y: 11872 }, { x: "2021-05-26T00:00:00Z", y: 11916 }, { x: "2021-05-27T00:00:00Z", y: 11955 }, { x: "2021-05-28T00:00:00Z", y: 11995 }, { x: "2021-05-29T00:00:00Z", y: 12024 }, { x: "2021-05-30T00:00:00Z", y: 12054 }, { x: "2021-05-31T00:00:00Z", y: 12095 }, { x: "2021-06-01T00:00:00Z", y: 12122 }, { x: "2021-06-02T00:00:00Z", y: 12145 }, { x: "2021-06-03T00:00:00Z", y: 12184 }, { x: "2021-06-04T00:00:00Z", y: 12218 }, { x: "2021-06-05T00:00:00Z", y: 12253 }, { x: "2021-06-06T00:00:00Z", y: 12277 }, { x: "2021-06-07T00:00:00Z", y: 12301 }, { x: "2021-06-08T00:00:00Z", y: 12331 }, { x: "2021-06-09T00:00:00Z", y: 12346 }, { x: "2021-06-10T00:00:00Z", y: 12370 }, { x: "2021-06-11T00:00:00Z", y: 12381 }, { x: "2021-06-12T00:00:00Z", y: 12405 }, { x: "2021-06-13T00:00:00Z", y: 12422 }, { x: "2021-06-14T00:00:00Z", y: 12443 }, { x: "2021-06-15T00:00:00Z", y: 12465 }, { x: "2021-06-16T00:00:00Z", y: 12478 }, { x: "2021-06-17T00:00:00Z", y: 12494 }, { x: "2021-06-18T00:00:00Z", y: 12514 }, { x: "2021-06-19T00:00:00Z", y: 12534 }, { x: "2021-06-20T00:00:00Z", y: 12548 }, { x: "2021-06-21T00:00:00Z", y: 12565 }, { x: "2021-06-22T00:00:00Z", y: 12581 }, { x: "2021-06-23T00:00:00Z", y: 12595 }, { x: "2021-06-24T00:00:00Z", y: 12613 }, { x: "2021-06-25T00:00:00Z", y: 12634 }, { x: "2021-06-26T00:00:00Z", y: 12646 }, { x: "2021-06-27T00:00:00Z", y: 12664 }, { x: "2021-06-28T00:00:00Z", y: 12682 }, { x: "2021-06-29T00:00:00Z", y: 12695 }, { x: "2021-06-30T00:00:00Z", y: 12706 }, { x: "2021-07-01T00:00:00Z", y: 12710 }, { x: "2021-07-02T00:00:00Z", y: 12722 }, { x: "2021-07-03T00:00:00Z", y: 12731 }, { x: "2021-07-04T00:00:00Z", y: 12737 }, { x: "2021-07-05T00:00:00Z", y: 12743 }, { x: "2021-07-06T00:00:00Z", y: 12754 }, { x: "2021-07-07T00:00:00Z", y: 12763 }, { x: "2021-07-08T00:00:00Z", y: 12773 }, { x: "2021-07-09T00:00:00Z", y: 12785 }, { x: "2021-07-10T00:00:00Z", y: 12787 }, { x: "2021-07-11T00:00:00Z", y: 12792 }, { x: "2021-07-12T00:00:00Z", y: 12802 }, { x: "2021-07-13T00:00:00Z", y: 12806 }, { x: "2021-07-14T00:00:00Z", y: 12813 }, { x: "2021-07-15T00:00:00Z", y: 12819 }, { x: "2021-07-16T00:00:00Z", y: 12833 }, { x: "2021-07-17T00:00:00Z", y: 12840 }, { x: "2021-07-18T00:00:00Z", y: 12850 }, { x: "2021-07-19T00:00:00Z", y: 12858 }, { x: "2021-07-20T00:00:00Z", y: 12867 }, { x: "2021-07-21T00:00:00Z", y: 12870 }, { x: "2021-07-22T00:00:00Z", y: 12875 }, { x: "2021-07-23T00:00:00Z", y: 12882 }, { x: "2021-07-24T00:00:00Z", y: 12890 }, { x: "2021-07-25T00:00:00Z", y: 12898 }, { x: "2021-07-26T00:00:00Z", y: 12903 }, { x: "2021-07-27T00:00:00Z", y: 12911 }, { x: "2021-07-28T00:00:00Z", y: 12926 }, { x: "2021-07-29T00:00:00Z", y: 12935 }, { x: "2021-07-30T00:00:00Z", y: 12948 }, { x: "2021-07-31T00:00:00Z", y: 12965 }, { x: "2021-08-01T00:00:00Z", y: 12975 }, { x: "2021-08-02T00:00:00Z", y: 12983 }, { x: "2021-08-03T00:00:00Z", y: 12997 }, { x: "2021-08-04T00:00:00Z", y: 13013 }, { x: "2021-08-05T00:00:00Z", y: 13026 }, { x: "2021-08-06T00:00:00Z", y: 13048 }, { x: "2021-08-07T00:00:00Z", y: 13058 }, { x: "2021-08-08T00:00:00Z", y: 13075 }, { x: "2021-08-09T00:00:00Z", y: 13097 }, { x: "2021-08-10T00:00:00Z", y: 13118 }, { x: "2021-08-11T00:00:00Z", y: 13138 }, { x: "2021-08-12T00:00:00Z", y: 13158 }, { x: "2021-08-13T00:00:00Z", y: 13182 }, { x: "2021-08-14T00:00:00Z", y: 13206 }, { x: "2021-08-15T00:00:00Z", y: 13223 }, { x: "2021-08-16T00:00:00Z", y: 13237 }, { x: "2021-08-17T00:00:00Z", y: 13253 }, { x: "2021-08-18T00:00:00Z", y: 13278 }, { x: "2021-08-19T00:00:00Z", y: 13298 }, { x: "2021-08-20T00:00:00Z", y: 13328 }, { x: "2021-08-21T00:00:00Z", y: 13351 }, { x: "2021-08-22T00:00:00Z", y: 13384 }, { x: "2021-08-23T00:00:00Z", y: 13422 }, { x: "2021-08-24T00:00:00Z", y: 13466 }, { x: "2021-08-25T00:00:00Z", y: 13509 }, { x: "2021-08-26T00:00:00Z", y: 13539 }, { x: "2021-08-27T00:00:00Z", y: 13561 }, { x: "2021-08-28T00:00:00Z", y: 13599 }, { x: "2021-08-29T00:00:00Z", y: 13636 }, { x: "2021-08-30T00:00:00Z", y: 13656 }, { x: "2021-08-31T00:00:00Z", y: 13691 }, { x: "2021-09-01T00:00:00Z", y: 13743 }, { x: "2021-09-02T00:00:00Z", y: 13777 }, { x: "2021-09-03T00:00:00Z", y: 13813 }, { x: "2021-09-04T00:00:00Z", y: 13843 }, { x: "2021-09-05T00:00:00Z", y: 13886 }, { x: "2021-09-06T00:00:00Z", y: 13933 }, { x: "2021-09-07T00:00:00Z", y: 13971 }, { x: "2021-09-08T00:00:00Z", y: 14014 }, { x: "2021-09-09T00:00:00Z", y: 14060 }, { x: "2021-09-10T00:00:00Z", y: 14102 }, { x: "2021-09-11T00:00:00Z", y: 14141 }, { x: "2021-09-12T00:00:00Z", y: 14169 }, { x: "2021-09-13T00:00:00Z", y: 14223 }, { x: "2021-09-14T00:00:00Z", y: 14268 }, { x: "2021-09-15T00:00:00Z", y: 14311 }, { x: "2021-09-16T00:00:00Z", y: 14354 }, { x: "2021-09-17T00:00:00Z", y: 14394 }, { x: "2021-09-18T00:00:00Z", y: 14433 }, { x: "2021-09-19T00:00:00Z", y: 14466 }, { x: "2021-09-20T00:00:00Z", y: 14505 }, { x: "2021-09-21T00:00:00Z", y: 14548 }, { x: "2021-09-22T00:00:00Z", y: 14575 }, { x: "2021-09-23T00:00:00Z", y: 14606 }, { x: "2021-09-24T00:00:00Z", y: 14639 }, { x: "2021-09-25T00:00:00Z", y: 14655 }, { x: "2021-09-26T00:00:00Z", y: 14679 }, { x: "2021-09-27T00:00:00Z", y: 14727 }, { x: "2021-09-28T00:00:00Z", y: 14751 }, { x: "2021-09-29T00:00:00Z", y: 14795 }, { x: "2021-09-30T00:00:00Z", y: 14828 }, { x: "2021-10-01T00:00:00Z", y: 14860 }, { x: "2021-10-02T00:00:00Z", y: 14889 }, { x: "2021-10-03T00:00:00Z", y: 14920 }, { x: "2021-10-04T00:00:00Z", y: 14956 }, { x: "2021-10-05T00:00:00Z", y: 14991 }, { x: "2021-10-06T00:00:00Z", y: 15012 }, { x: "2021-10-07T00:00:00Z", y: 15042 }, { x: "2021-10-08T00:00:00Z", y: 15069 }, { x: "2021-10-09T00:00:00Z", y: 15105 }, { x: "2021-10-10T00:00:00Z", y: 15135 }, { x: "2021-10-11T00:00:00Z", y: 15177 }, { x: "2021-10-12T00:00:00Z", y: 15210 }, { x: "2021-10-13T00:00:00Z", y: 15241 }, { x: "2021-10-14T00:00:00Z", y: 15289 }, { x: "2021-10-15T00:00:00Z", y: 15317 }, { x: "2021-10-16T00:00:00Z", y: 15348 }, { x: "2021-10-17T00:00:00Z", y: 15375 }, { x: "2021-10-18T00:00:00Z", y: 15418 }, { x: "2021-10-19T00:00:00Z", y: 15447 }, { x: "2021-10-20T00:00:00Z", y: 15485 }, { x: "2021-10-21T00:00:00Z", y: 15519 }, { x: "2021-10-22T00:00:00Z", y: 15555 }, { x: "2021-10-23T00:00:00Z", y: 15598 }, { x: "2021-10-24T00:00:00Z", y: 15628 }, { x: "2021-10-25T00:00:00Z", y: 15682 }, { x: "2021-10-26T00:00:00Z", y: 15707 }, { x: "2021-10-27T00:00:00Z", y: 15770 }, { x: "2021-10-28T00:00:00Z", y: 15801 }, { x: "2021-10-29T00:00:00Z", y: 15856 }, { x: "2021-10-30T00:00:00Z", y: 15894 }, { x: "2021-10-31T00:00:00Z", y: 15938 }, { x: "2021-11-01T00:00:00Z", y: 15990 }, { x: "2021-11-02T00:00:00Z", y: 16050 }, { x: "2021-11-03T00:00:00Z", y: 16109 }, { x: "2021-11-04T00:00:00Z", y: 16151 }, { x: "2021-11-05T00:00:00Z", y: 16200 }, { x: "2021-11-06T00:00:00Z", y: 16243 }, { x: "2021-11-07T00:00:00Z", y: 16295 }, { x: "2021-11-08T00:00:00Z", y: 16361 }, { x: "2021-11-09T00:00:00Z", y: 16414 }, { x: "2021-11-10T00:00:00Z", y: 16493 }, { x: "2021-11-11T00:00:00Z", y: 16560 }, { x: "2021-11-12T00:00:00Z", y: 16616 }, { x: "2021-11-13T00:00:00Z", y: 16686 }] }, { label: "United Kingdom", data: [{ x: "2020-01-22T00:00:00Z", y: 0 }, { x: "2020-01-23T00:00:00Z", y: 0 }, { x: "2020-01-24T00:00:00Z", y: 0 }, { x: "2020-01-25T00:00:00Z", y: 0 }, { x: "2020-01-26T00:00:00Z", y: 0 }, { x: "2020-01-27T00:00:00Z", y: 0 }, { x: "2020-01-28T00:00:00Z", y: 0 }, { x: "2020-01-29T00:00:00Z", y: 0 }, { x: "2020-01-30T00:00:00Z", y: 0 }, { x: "2020-01-31T00:00:00Z", y: 0 }, { x: "2020-02-01T00:00:00Z", y: 0 }, { x: "2020-02-02T00:00:00Z", y: 0 }, { x: "2020-02-03T00:00:00Z", y: 0 }, { x: "2020-02-04T00:00:00Z", y: 0 }, { x: "2020-02-05T00:00:00Z", y: 0 }, { x: "2020-02-06T00:00:00Z", y: 0 }, { x: "2020-02-07T00:00:00Z", y: 0 }, { x: "2020-02-08T00:00:00Z", y: 0 }, { x: "2020-02-09T00:00:00Z", y: 0 }, { x: "2020-02-10T00:00:00Z", y: 0 }, { x: "2020-02-11T00:00:00Z", y: 0 }, { x: "2020-02-12T00:00:00Z", y: 0 }, { x: "2020-02-13T00:00:00Z", y: 0 }, { x: "2020-02-14T00:00:00Z", y: 0 }, { x: "2020-02-15T00:00:00Z", y: 0 }, { x: "2020-02-16T00:00:00Z", y: 0 }, { x: "2020-02-17T00:00:00Z", y: 0 }, { x: "2020-02-18T00:00:00Z", y: 0 }, { x: "2020-02-19T00:00:00Z", y: 0 }, { x: "2020-02-20T00:00:00Z", y: 0 }, { x: "2020-02-21T00:00:00Z", y: 0 }, { x: "2020-02-22T00:00:00Z", y: 0 }, { x: "2020-02-23T00:00:00Z", y: 0 }, { x: "2020-02-24T00:00:00Z", y: 0 }, { x: "2020-02-25T00:00:00Z", y: 0 }, { x: "2020-02-26T00:00:00Z", y: 0 }, { x: "2020-02-27T00:00:00Z", y: 0 }, { x: "2020-02-28T00:00:00Z", y: 0 }, { x: "2020-02-29T00:00:00Z", y: 0 }, { x: "2020-03-01T00:00:00Z", y: 0 }, { x: "2020-03-02T00:00:00Z", y: 0 }, { x: "2020-03-03T00:00:00Z", y: 0 }, { x: "2020-03-04T00:00:00Z", y: 0 }, { x: "2020-03-05T00:00:00Z", y: 0 }, { x: "2020-03-06T00:00:00Z", y: 1 }, { x: "2020-03-07T00:00:00Z", y: 2 }, { x: "2020-03-08T00:00:00Z", y: 2 }, { x: "2020-03-09T00:00:00Z", y: 3 }, { x: "2020-03-10T00:00:00Z", y: 7 }, { x: "2020-03-11T00:00:00Z", y: 7 }, { x: "2020-03-12T00:00:00Z", y: 9 }, { x: "2020-03-13T00:00:00Z", y: 10 }, { x: "2020-03-14T00:00:00Z", y: 29 }, { x: "2020-03-15T00:00:00Z", y: 43 }, { x: "2020-03-16T00:00:00Z", y: 66 }, { x: "2020-03-17T00:00:00Z", y: 83 }, { x: "2020-03-18T00:00:00Z", y: 118 }, { x: "2020-03-19T00:00:00Z", y: 164 }, { x: "2020-03-20T00:00:00Z", y: 196 }, { x: "2020-03-21T00:00:00Z", y: 254 }, { x: "2020-03-22T00:00:00Z", y: 289 }, { x: "2020-03-23T00:00:00Z", y: 365 }, { x: "2020-03-24T00:00:00Z", y: 513 }, { x: "2020-03-25T00:00:00Z", y: 704 }, { x: "2020-03-26T00:00:00Z", y: 886 }, { x: "2020-03-27T00:00:00Z", y: 1174 }, { x: "2020-03-28T00:00:00Z", y: 1466 }, { x: "2020-03-29T00:00:00Z", y: 1679 }, { x: "2020-03-30T00:00:00Z", y: 2053 }, { x: "2020-03-31T00:00:00Z", y: 2457 }, { x: "2020-04-01T00:00:00Z", y: 3130 }, { x: "2020-04-02T00:00:00Z", y: 3787 }, { x: "2020-04-03T00:00:00Z", y: 4524 }, { x: "2020-04-04T00:00:00Z", y: 5281 }, { x: "2020-04-05T00:00:00Z", y: 5882 }, { x: "2020-04-06T00:00:00Z", y: 6452 }, { x: "2020-04-07T00:00:00Z", y: 7557 }, { x: "2020-04-08T00:00:00Z", y: 8589 }, { x: "2020-04-09T00:00:00Z", y: 9706 }, { x: "2020-04-10T00:00:00Z", y: 10829 }, { x: "2020-04-11T00:00:00Z", y: 11673 }, { x: "2020-04-12T00:00:00Z", y: 12330 }, { x: "2020-04-13T00:00:00Z", y: 13055 }, { x: "2020-04-14T00:00:00Z", y: 14135 }, { x: "2020-04-15T00:00:00Z", y: 15019 }, { x: "2020-04-16T00:00:00Z", y: 16059 }, { x: "2020-04-17T00:00:00Z", y: 16973 }, { x: "2020-04-18T00:00:00Z", y: 18081 }, { x: "2020-04-19T00:00:00Z", y: 18514 }, { x: "2020-04-20T00:00:00Z", y: 19090 }, { x: "2020-04-21T00:00:00Z", y: 20314 }, { x: "2020-04-22T00:00:00Z", y: 21171 }, { x: "2020-04-23T00:00:00Z", y: 21855 }, { x: "2020-04-24T00:00:00Z", y: 22873 }, { x: "2020-04-25T00:00:00Z", y: 23689 }, { x: "2020-04-26T00:00:00Z", y: 24053 }, { x: "2020-04-27T00:00:00Z", y: 24376 }, { x: "2020-04-28T00:00:00Z", y: 25347 }, { x: "2020-04-29T00:00:00Z", y: 26118 }, { x: "2020-04-30T00:00:00Z", y: 26754 }, { x: "2020-05-01T00:00:00Z", y: 27454 }, { x: "2020-05-02T00:00:00Z", y: 28039 }, { x: "2020-05-03T00:00:00Z", y: 28292 }, { x: "2020-05-04T00:00:00Z", y: 28565 }, { x: "2020-05-05T00:00:00Z", y: 29290 }, { x: "2020-05-06T00:00:00Z", y: 29937 }, { x: "2020-05-07T00:00:00Z", y: 30395 }, { x: "2020-05-08T00:00:00Z", y: 30975 }, { x: "2020-05-09T00:00:00Z", y: 31250 }, { x: "2020-05-10T00:00:00Z", y: 31467 }, { x: "2020-05-11T00:00:00Z", y: 31655 }, { x: "2020-05-12T00:00:00Z", y: 32270 }, { x: "2020-05-13T00:00:00Z", y: 32718 }, { x: "2020-05-14T00:00:00Z", y: 33071 }, { x: "2020-05-15T00:00:00Z", y: 33422 }, { x: "2020-05-16T00:00:00Z", y: 33833 }, { x: "2020-05-17T00:00:00Z", y: 33900 }, { x: "2020-05-18T00:00:00Z", y: 34046 }, { x: "2020-05-19T00:00:00Z", y: 34547 }, { x: "2020-05-20T00:00:00Z", y: 34876 }, { x: "2020-05-21T00:00:00Z", y: 35149 }, { x: "2020-05-22T00:00:00Z", y: 35440 }, { x: "2020-05-23T00:00:00Z", y: 35660 }, { x: "2020-05-24T00:00:00Z", y: 36039 }, { x: "2020-05-25T00:00:00Z", y: 36143 }, { x: "2020-05-26T00:00:00Z", y: 36274 }, { x: "2020-05-27T00:00:00Z", y: 36696 }, { x: "2020-05-28T00:00:00Z", y: 37039 }, { x: "2020-05-29T00:00:00Z", y: 37313 }, { x: "2020-05-30T00:00:00Z", y: 37467 }, { x: "2020-05-31T00:00:00Z", y: 37527 }, { x: "2020-06-01T00:00:00Z", y: 37613 }, { x: "2020-06-02T00:00:00Z", y: 37863 }, { x: "2020-06-03T00:00:00Z", y: 38117 }, { x: "2020-06-04T00:00:00Z", y: 38247 }, { x: "2020-06-05T00:00:00Z", y: 38505 }, { x: "2020-06-06T00:00:00Z", y: 38648 }, { x: "2020-06-07T00:00:00Z", y: 38702 }, { x: "2020-06-08T00:00:00Z", y: 38749 }, { x: "2020-06-09T00:00:00Z", y: 38946 }, { x: "2020-06-10T00:00:00Z", y: 39110 }, { x: "2020-06-11T00:00:00Z", y: 39186 }, { x: "2020-06-12T00:00:00Z", y: 39317 }, { x: "2020-06-13T00:00:00Z", y: 39424 }, { x: "2020-06-14T00:00:00Z", y: 39451 }, { x: "2020-06-15T00:00:00Z", y: 39480 }, { x: "2020-06-16T00:00:00Z", y: 39600 }, { x: "2020-06-17T00:00:00Z", y: 39710 }, { x: "2020-06-18T00:00:00Z", y: 39777 }, { x: "2020-06-19T00:00:00Z", y: 39861 }, { x: "2020-06-20T00:00:00Z", y: 39932 }, { x: "2020-06-21T00:00:00Z", y: 39963 }, { x: "2020-06-22T00:00:00Z", y: 39976 }, { x: "2020-06-23T00:00:00Z", y: 40070 }, { x: "2020-06-24T00:00:00Z", y: 40157 }, { x: "2020-06-25T00:00:00Z", y: 40256 }, { x: "2020-06-26T00:00:00Z", y: 40333 }, { x: "2020-06-27T00:00:00Z", y: 40373 }, { x: "2020-06-28T00:00:00Z", y: 40404 }, { x: "2020-06-29T00:00:00Z", y: 40425 }, { x: "2020-06-30T00:00:00Z", y: 40479 }, { x: "2020-07-01T00:00:00Z", y: 40576 }, { x: "2020-07-02T00:00:00Z", y: 40617 }, { x: "2020-07-03T00:00:00Z", y: 40666 }, { x: "2020-07-04T00:00:00Z", y: 40698 }, { x: "2020-07-05T00:00:00Z", y: 40717 }, { x: "2020-07-06T00:00:00Z", y: 40728 }, { x: "2020-07-07T00:00:00Z", y: 40782 }, { x: "2020-07-08T00:00:00Z", y: 40839 }, { x: "2020-07-09T00:00:00Z", y: 40870 }, { x: "2020-07-10T00:00:00Z", y: 40904 }, { x: "2020-07-11T00:00:00Z", y: 40921 }, { x: "2020-07-12T00:00:00Z", y: 40930 }, { x: "2020-07-13T00:00:00Z", y: 40940 }, { x: "2020-07-14T00:00:00Z", y: 40984 }, { x: "2020-07-15T00:00:00Z", y: 41010 }, { x: "2020-07-16T00:00:00Z", y: 41034 }, { x: "2020-07-17T00:00:00Z", y: 41060 }, { x: "2020-07-18T00:00:00Z", y: 41069 }, { x: "2020-07-19T00:00:00Z", y: 41080 }, { x: "2020-07-20T00:00:00Z", y: 41090 }, { x: "2020-07-21T00:00:00Z", y: 41115 }, { x: "2020-07-22T00:00:00Z", y: 41132 }, { x: "2020-07-23T00:00:00Z", y: 41141 }, { x: "2020-07-24T00:00:00Z", y: 41173 }, { x: "2020-07-25T00:00:00Z", y: 41188 }, { x: "2020-07-26T00:00:00Z", y: 41196 }, { x: "2020-07-27T00:00:00Z", y: 41199 }, { x: "2020-07-28T00:00:00Z", y: 41220 }, { x: "2020-07-29T00:00:00Z", y: 41254 }, { x: "2020-07-30T00:00:00Z", y: 41254 }, { x: "2020-07-31T00:00:00Z", y: 41274 }, { x: "2020-08-01T00:00:00Z", y: 41287 }, { x: "2020-08-02T00:00:00Z", y: 41292 }, { x: "2020-08-03T00:00:00Z", y: 41293 }, { x: "2020-08-04T00:00:00Z", y: 41311 }, { x: "2020-08-05T00:00:00Z", y: 41325 }, { x: "2020-08-06T00:00:00Z", y: 41343 }, { x: "2020-08-07T00:00:00Z", y: 41355 }, { x: "2020-08-08T00:00:00Z", y: 41358 }, { x: "2020-08-09T00:00:00Z", y: 41363 }, { x: "2020-08-10T00:00:00Z", y: 41381 }, { x: "2020-08-11T00:00:00Z", y: 41394 }, { x: "2020-08-12T00:00:00Z", y: 41414 }, { x: "2020-08-13T00:00:00Z", y: 41432 }, { x: "2020-08-14T00:00:00Z", y: 41443 }, { x: "2020-08-15T00:00:00Z", y: 41446 }, { x: "2020-08-16T00:00:00Z", y: 41451 }, { x: "2020-08-17T00:00:00Z", y: 41454 }, { x: "2020-08-18T00:00:00Z", y: 41466 }, { x: "2020-08-19T00:00:00Z", y: 41483 }, { x: "2020-08-20T00:00:00Z", y: 41489 }, { x: "2020-08-21T00:00:00Z", y: 41491 }, { x: "2020-08-22T00:00:00Z", y: 41509 }, { x: "2020-08-23T00:00:00Z", y: 41515 }, { x: "2020-08-24T00:00:00Z", y: 41519 }, { x: "2020-08-25T00:00:00Z", y: 41535 }, { x: "2020-08-26T00:00:00Z", y: 41552 }, { x: "2020-08-27T00:00:00Z", y: 41564 }, { x: "2020-08-28T00:00:00Z", y: 41573 }, { x: "2020-08-29T00:00:00Z", y: 41585 }, { x: "2020-08-30T00:00:00Z", y: 41586 }, { x: "2020-08-31T00:00:00Z", y: 41589 }, { x: "2020-09-01T00:00:00Z", y: 41592 }, { x: "2020-09-02T00:00:00Z", y: 41602 }, { x: "2020-09-03T00:00:00Z", y: 41616 }, { x: "2020-09-04T00:00:00Z", y: 41626 }, { x: "2020-09-05T00:00:00Z", y: 41638 }, { x: "2020-09-06T00:00:00Z", y: 41640 }, { x: "2020-09-07T00:00:00Z", y: 41643 }, { x: "2020-09-08T00:00:00Z", y: 41675 }, { x: "2020-09-09T00:00:00Z", y: 41683 }, { x: "2020-09-10T00:00:00Z", y: 41697 }, { x: "2020-09-11T00:00:00Z", y: 41703 }, { x: "2020-09-12T00:00:00Z", y: 41712 }, { x: "2020-09-13T00:00:00Z", y: 41717 }, { x: "2020-09-14T00:00:00Z", y: 41726 }, { x: "2020-09-15T00:00:00Z", y: 41753 }, { x: "2020-09-16T00:00:00Z", y: 41773 }, { x: "2020-09-17T00:00:00Z", y: 41794 }, { x: "2020-09-18T00:00:00Z", y: 41821 }, { x: "2020-09-19T00:00:00Z", y: 41848 }, { x: "2020-09-20T00:00:00Z", y: 41866 }, { x: "2020-09-21T00:00:00Z", y: 41877 }, { x: "2020-09-22T00:00:00Z", y: 41914 }, { x: "2020-09-23T00:00:00Z", y: 41951 }, { x: "2020-09-24T00:00:00Z", y: 41991 }, { x: "2020-09-25T00:00:00Z", y: 42025 }, { x: "2020-09-26T00:00:00Z", y: 42060 }, { x: "2020-09-27T00:00:00Z", y: 42077 }, { x: "2020-09-28T00:00:00Z", y: 42090 }, { x: "2020-09-29T00:00:00Z", y: 42162 }, { x: "2020-09-30T00:00:00Z", y: 42233 }, { x: "2020-10-01T00:00:00Z", y: 42292 }, { x: "2020-10-02T00:00:00Z", y: 42358 }, { x: "2020-10-03T00:00:00Z", y: 42407 }, { x: "2020-10-04T00:00:00Z", y: 42440 }, { x: "2020-10-05T00:00:00Z", y: 42459 }, { x: "2020-10-06T00:00:00Z", y: 42535 }, { x: "2020-10-07T00:00:00Z", y: 42605 }, { x: "2020-10-08T00:00:00Z", y: 42682 }, { x: "2020-10-09T00:00:00Z", y: 42769 }, { x: "2020-10-10T00:00:00Z", y: 42850 }, { x: "2020-10-11T00:00:00Z", y: 42915 }, { x: "2020-10-12T00:00:00Z", y: 42965 }, { x: "2020-10-13T00:00:00Z", y: 43108 }, { x: "2020-10-14T00:00:00Z", y: 43245 }, { x: "2020-10-15T00:00:00Z", y: 43383 }, { x: "2020-10-16T00:00:00Z", y: 43519 }, { x: "2020-10-17T00:00:00Z", y: 43669 }, { x: "2020-10-18T00:00:00Z", y: 43736 }, { x: "2020-10-19T00:00:00Z", y: 43816 }, { x: "2020-10-20T00:00:00Z", y: 44057 }, { x: "2020-10-21T00:00:00Z", y: 44248 }, { x: "2020-10-22T00:00:00Z", y: 44437 }, { x: "2020-10-23T00:00:00Z", y: 44661 }, { x: "2020-10-24T00:00:00Z", y: 44835 }, { x: "2020-10-25T00:00:00Z", y: 44986 }, { x: "2020-10-26T00:00:00Z", y: 45088 }, { x: "2020-10-27T00:00:00Z", y: 45455 }, { x: "2020-10-28T00:00:00Z", y: 45765 }, { x: "2020-10-29T00:00:00Z", y: 46045 }, { x: "2020-10-30T00:00:00Z", y: 46319 }, { x: "2020-10-31T00:00:00Z", y: 46645 }, { x: "2020-11-01T00:00:00Z", y: 46807 }, { x: "2020-11-02T00:00:00Z", y: 46943 }, { x: "2020-11-03T00:00:00Z", y: 47340 }, { x: "2020-11-04T00:00:00Z", y: 47832 }, { x: "2020-11-05T00:00:00Z", y: 48210 }, { x: "2020-11-06T00:00:00Z", y: 48565 }, { x: "2020-11-07T00:00:00Z", y: 48978 }, { x: "2020-11-08T00:00:00Z", y: 49134 }, { x: "2020-11-09T00:00:00Z", y: 49329 }, { x: "2020-11-10T00:00:00Z", y: 49861 }, { x: "2020-11-11T00:00:00Z", y: 50457 }, { x: "2020-11-12T00:00:00Z", y: 51020 }, { x: "2020-11-13T00:00:00Z", y: 51396 }, { x: "2020-11-14T00:00:00Z", y: 51858 }, { x: "2020-11-15T00:00:00Z", y: 52026 }, { x: "2020-11-16T00:00:00Z", y: 52240 }, { x: "2020-11-17T00:00:00Z", y: 52839 }, { x: "2020-11-18T00:00:00Z", y: 53368 }, { x: "2020-11-19T00:00:00Z", y: 53870 }, { x: "2020-11-20T00:00:00Z", y: 54381 }, { x: "2020-11-21T00:00:00Z", y: 54721 }, { x: "2020-11-22T00:00:00Z", y: 55120 }, { x: "2020-11-23T00:00:00Z", y: 55327 }, { x: "2020-11-24T00:00:00Z", y: 55935 }, { x: "2020-11-25T00:00:00Z", y: 56630 }, { x: "2020-11-26T00:00:00Z", y: 57128 }, { x: "2020-11-27T00:00:00Z", y: 57648 }, { x: "2020-11-28T00:00:00Z", y: 58127 }, { x: "2020-11-29T00:00:00Z", y: 58342 }, { x: "2020-11-30T00:00:00Z", y: 58545 }, { x: "2020-12-01T00:00:00Z", y: 59148 }, { x: "2020-12-02T00:00:00Z", y: 59796 }, { x: "2020-12-03T00:00:00Z", y: 60210 }, { x: "2020-12-04T00:00:00Z", y: 60714 }, { x: "2020-12-05T00:00:00Z", y: 61111 }, { x: "2020-12-06T00:00:00Z", y: 61342 }, { x: "2020-12-07T00:00:00Z", y: 61531 }, { x: "2020-12-08T00:00:00Z", y: 62130 }, { x: "2020-12-09T00:00:00Z", y: 62663 }, { x: "2020-12-10T00:00:00Z", y: 63179 }, { x: "2020-12-11T00:00:00Z", y: 63603 }, { x: "2020-12-12T00:00:00Z", y: 64123 }, { x: "2020-12-13T00:00:00Z", y: 64267 }, { x: "2020-12-14T00:00:00Z", y: 64500 }, { x: "2020-12-15T00:00:00Z", y: 65006 }, { x: "2020-12-16T00:00:00Z", y: 65618 }, { x: "2020-12-17T00:00:00Z", y: 66150 }, { x: "2020-12-18T00:00:00Z", y: 66640 }, { x: "2020-12-19T00:00:00Z", y: 67177 }, { x: "2020-12-20T00:00:00Z", y: 67503 }, { x: "2020-12-21T00:00:00Z", y: 67718 }, { x: "2020-12-22T00:00:00Z", y: 68409 }, { x: "2020-12-23T00:00:00Z", y: 69157 }, { x: "2020-12-24T00:00:00Z", y: 69732 }, { x: "2020-12-25T00:00:00Z", y: 70302 }, { x: "2020-12-26T00:00:00Z", y: 70513 }, { x: "2020-12-27T00:00:00Z", y: 70860 }, { x: "2020-12-28T00:00:00Z", y: 71217 }, { x: "2020-12-29T00:00:00Z", y: 71675 }, { x: "2020-12-30T00:00:00Z", y: 72657 }, { x: "2020-12-31T00:00:00Z", y: 73622 }, { x: "2021-01-01T00:00:00Z", y: 74237 }, { x: "2021-01-02T00:00:00Z", y: 74682 }, { x: "2021-01-03T00:00:00Z", y: 75137 }, { x: "2021-01-04T00:00:00Z", y: 75547 }, { x: "2021-01-05T00:00:00Z", y: 76428 }, { x: "2021-01-06T00:00:00Z", y: 77470 }, { x: "2021-01-07T00:00:00Z", y: 78632 }, { x: "2021-01-08T00:00:00Z", y: 79965 }, { x: "2021-01-09T00:00:00Z", y: 81e3 }, { x: "2021-01-10T00:00:00Z", y: 81567 }, { x: "2021-01-11T00:00:00Z", y: 82096 }, { x: "2021-01-12T00:00:00Z", y: 83342 }, { x: "2021-01-13T00:00:00Z", y: 84910 }, { x: "2021-01-14T00:00:00Z", y: 86163 }, { x: "2021-01-15T00:00:00Z", y: 87448 }, { x: "2021-01-16T00:00:00Z", y: 88747 }, { x: "2021-01-17T00:00:00Z", y: 89429 }, { x: "2021-01-18T00:00:00Z", y: 90031 }, { x: "2021-01-19T00:00:00Z", y: 91643 }, { x: "2021-01-20T00:00:00Z", y: 93469 }, { x: "2021-01-21T00:00:00Z", y: 94765 }, { x: "2021-01-22T00:00:00Z", y: 96166 }, { x: "2021-01-23T00:00:00Z", y: 97518 }, { x: "2021-01-24T00:00:00Z", y: 98129 }, { x: "2021-01-25T00:00:00Z", y: 98723 }, { x: "2021-01-26T00:00:00Z", y: 100359 }, { x: "2021-01-27T00:00:00Z", y: 102085 }, { x: "2021-01-28T00:00:00Z", y: 103324 }, { x: "2021-01-29T00:00:00Z", y: 104572 }, { x: "2021-01-30T00:00:00Z", y: 105777 }, { x: "2021-01-31T00:00:00Z", y: 106367 }, { x: "2021-02-01T00:00:00Z", y: 106774 }, { x: "2021-02-02T00:00:00Z", y: 108225 }, { x: "2021-02-03T00:00:00Z", y: 109547 }, { x: "2021-02-04T00:00:00Z", y: 110462 }, { x: "2021-02-05T00:00:00Z", y: 111477 }, { x: "2021-02-06T00:00:00Z", y: 112305 }, { x: "2021-02-07T00:00:00Z", y: 112681 }, { x: "2021-02-08T00:00:00Z", y: 113014 }, { x: "2021-02-09T00:00:00Z", y: 114066 }, { x: "2021-02-10T00:00:00Z", y: 115068 }, { x: "2021-02-11T00:00:00Z", y: 115748 }, { x: "2021-02-12T00:00:00Z", y: 116507 }, { x: "2021-02-13T00:00:00Z", y: 117128 }, { x: "2021-02-14T00:00:00Z", y: 117387 }, { x: "2021-02-15T00:00:00Z", y: 117622 }, { x: "2021-02-16T00:00:00Z", y: 118421 }, { x: "2021-02-17T00:00:00Z", y: 119159 }, { x: "2021-02-18T00:00:00Z", y: 119614 }, { x: "2021-02-19T00:00:00Z", y: 120147 }, { x: "2021-02-20T00:00:00Z", y: 120593 }, { x: "2021-02-21T00:00:00Z", y: 120810 }, { x: "2021-02-22T00:00:00Z", y: 120988 }, { x: "2021-02-23T00:00:00Z", y: 121536 }, { x: "2021-02-24T00:00:00Z", y: 121979 }, { x: "2021-02-25T00:00:00Z", y: 122303 }, { x: "2021-02-26T00:00:00Z", y: 122648 }, { x: "2021-02-27T00:00:00Z", y: 122939 }, { x: "2021-02-28T00:00:00Z", y: 123083 }, { x: "2021-03-01T00:00:00Z", y: 123187 }, { x: "2021-03-02T00:00:00Z", y: 123530 }, { x: "2021-03-03T00:00:00Z", y: 124017 }, { x: "2021-03-04T00:00:00Z", y: 124259 }, { x: "2021-03-05T00:00:00Z", y: 124495 }, { x: "2021-03-06T00:00:00Z", y: 124654 }, { x: "2021-03-07T00:00:00Z", y: 124736 }, { x: "2021-03-08T00:00:00Z", y: 124801 }, { x: "2021-03-09T00:00:00Z", y: 125032 }, { x: "2021-03-10T00:00:00Z", y: 125222 }, { x: "2021-03-11T00:00:00Z", y: 125403 }, { x: "2021-03-12T00:00:00Z", y: 125579 }, { x: "2021-03-13T00:00:00Z", y: 125701 }, { x: "2021-03-14T00:00:00Z", y: 125753 }, { x: "2021-03-15T00:00:00Z", y: 125817 }, { x: "2021-03-16T00:00:00Z", y: 125927 }, { x: "2021-03-17T00:00:00Z", y: 126068 }, { x: "2021-03-18T00:00:00Z", y: 126163 }, { x: "2021-03-19T00:00:00Z", y: 126263 }, { x: "2021-03-20T00:00:00Z", y: 126359 }, { x: "2021-03-21T00:00:00Z", y: 126393 }, { x: "2021-03-22T00:00:00Z", y: 126411 }, { x: "2021-03-23T00:00:00Z", y: 126523 }, { x: "2021-03-24T00:00:00Z", y: 126621 }, { x: "2021-03-25T00:00:00Z", y: 126684 }, { x: "2021-03-26T00:00:00Z", y: 126755 }, { x: "2021-03-27T00:00:00Z", y: 126813 }, { x: "2021-03-28T00:00:00Z", y: 126834 }, { x: "2021-03-29T00:00:00Z", y: 126857 }, { x: "2021-03-30T00:00:00Z", y: 126912 }, { x: "2021-03-31T00:00:00Z", y: 126955 }, { x: "2021-04-01T00:00:00Z", y: 127006 }, { x: "2021-04-02T00:00:00Z", y: 127058 }, { x: "2021-04-03T00:00:00Z", y: 127068 }, { x: "2021-04-04T00:00:00Z", y: 127078 }, { x: "2021-04-05T00:00:00Z", y: 127106 }, { x: "2021-04-06T00:00:00Z", y: 127126 }, { x: "2021-04-07T00:00:00Z", y: 127171 }, { x: "2021-04-08T00:00:00Z", y: 127224 }, { x: "2021-04-09T00:00:00Z", y: 127284 }, { x: "2021-04-10T00:00:00Z", y: 127324 }, { x: "2021-04-11T00:00:00Z", y: 127331 }, { x: "2021-04-12T00:00:00Z", y: 127346 }, { x: "2021-04-13T00:00:00Z", y: 127369 }, { x: "2021-04-14T00:00:00Z", y: 127407 }, { x: "2021-04-15T00:00:00Z", y: 127438 }, { x: "2021-04-16T00:00:00Z", y: 127472 }, { x: "2021-04-17T00:00:00Z", y: 127508 }, { x: "2021-04-18T00:00:00Z", y: 127518 }, { x: "2021-04-19T00:00:00Z", y: 127524 }, { x: "2021-04-20T00:00:00Z", y: 127557 }, { x: "2021-04-21T00:00:00Z", y: 127577 }, { x: "2021-04-22T00:00:00Z", y: 127597 }, { x: "2021-04-23T00:00:00Z", y: 127638 }, { x: "2021-04-24T00:00:00Z", y: 127670 }, { x: "2021-04-25T00:00:00Z", y: 127681 }, { x: "2021-04-26T00:00:00Z", y: 127688 }, { x: "2021-04-27T00:00:00Z", y: 127705 }, { x: "2021-04-28T00:00:00Z", y: 127734 }, { x: "2021-04-29T00:00:00Z", y: 127759 }, { x: "2021-04-30T00:00:00Z", y: 127775 }, { x: "2021-05-01T00:00:00Z", y: 127782 }, { x: "2021-05-02T00:00:00Z", y: 127796 }, { x: "2021-05-03T00:00:00Z", y: 127797 }, { x: "2021-05-04T00:00:00Z", y: 127803 }, { x: "2021-05-05T00:00:00Z", y: 127830 }, { x: "2021-05-06T00:00:00Z", y: 127843 }, { x: "2021-05-07T00:00:00Z", y: 127858 }, { x: "2021-05-08T00:00:00Z", y: 127863 }, { x: "2021-05-09T00:00:00Z", y: 127865 }, { x: "2021-05-10T00:00:00Z", y: 127870 }, { x: "2021-05-11T00:00:00Z", y: 127890 }, { x: "2021-05-12T00:00:00Z", y: 127901 }, { x: "2021-05-13T00:00:00Z", y: 127912 }, { x: "2021-05-14T00:00:00Z", y: 127930 }, { x: "2021-05-15T00:00:00Z", y: 127937 }, { x: "2021-05-16T00:00:00Z", y: 127941 }, { x: "2021-05-17T00:00:00Z", y: 127946 }, { x: "2021-05-18T00:00:00Z", y: 127953 }, { x: "2021-05-19T00:00:00Z", y: 127956 }, { x: "2021-05-20T00:00:00Z", y: 127963 }, { x: "2021-05-21T00:00:00Z", y: 127972 }, { x: "2021-05-22T00:00:00Z", y: 127978 }, { x: "2021-05-23T00:00:00Z", y: 127983 }, { x: "2021-05-24T00:00:00Z", y: 127986 }, { x: "2021-05-25T00:00:00Z", y: 128001 }, { x: "2021-05-26T00:00:00Z", y: 128010 }, { x: "2021-05-27T00:00:00Z", y: 128020 }, { x: "2021-05-28T00:00:00Z", y: 128030 }, { x: "2021-05-29T00:00:00Z", y: 128037 }, { x: "2021-05-30T00:00:00Z", y: 128043 }, { x: "2021-05-31T00:00:00Z", y: 128045 }, { x: "2021-06-01T00:00:00Z", y: 128045 }, { x: "2021-06-02T00:00:00Z", y: 128057 }, { x: "2021-06-03T00:00:00Z", y: 128075 }, { x: "2021-06-04T00:00:00Z", y: 128086 }, { x: "2021-06-05T00:00:00Z", y: 128099 }, { x: "2021-06-06T00:00:00Z", y: 128103 }, { x: "2021-06-07T00:00:00Z", y: 128104 }, { x: "2021-06-08T00:00:00Z", y: 128118 }, { x: "2021-06-09T00:00:00Z", y: 128124 }, { x: "2021-06-10T00:00:00Z", y: 128131 }, { x: "2021-06-11T00:00:00Z", y: 128148 }, { x: "2021-06-12T00:00:00Z", y: 128160 }, { x: "2021-06-13T00:00:00Z", y: 128168 }, { x: "2021-06-14T00:00:00Z", y: 128171 }, { x: "2021-06-15T00:00:00Z", y: 128181 }, { x: "2021-06-16T00:00:00Z", y: 128190 }, { x: "2021-06-17T00:00:00Z", y: 128209 }, { x: "2021-06-18T00:00:00Z", y: 128220 }, { x: "2021-06-19T00:00:00Z", y: 128234 }, { x: "2021-06-20T00:00:00Z", y: 128240 }, { x: "2021-06-21T00:00:00Z", y: 128245 }, { x: "2021-06-22T00:00:00Z", y: 128272 }, { x: "2021-06-23T00:00:00Z", y: 128291 }, { x: "2021-06-24T00:00:00Z", y: 128312 }, { x: "2021-06-25T00:00:00Z", y: 128330 }, { x: "2021-06-26T00:00:00Z", y: 128353 }, { x: "2021-06-27T00:00:00Z", y: 128364 }, { x: "2021-06-28T00:00:00Z", y: 128367 }, { x: "2021-06-29T00:00:00Z", y: 128390 }, { x: "2021-06-30T00:00:00Z", y: 128404 }, { x: "2021-07-01T00:00:00Z", y: 128426 }, { x: "2021-07-02T00:00:00Z", y: 128453 }, { x: "2021-07-03T00:00:00Z", y: 128471 }, { x: "2021-07-04T00:00:00Z", y: 128486 }, { x: "2021-07-05T00:00:00Z", y: 128495 }, { x: "2021-07-06T00:00:00Z", y: 128532 }, { x: "2021-07-07T00:00:00Z", y: 128565 }, { x: "2021-07-08T00:00:00Z", y: 128601 }, { x: "2021-07-09T00:00:00Z", y: 128631 }, { x: "2021-07-10T00:00:00Z", y: 128665 }, { x: "2021-07-11T00:00:00Z", y: 128691 }, { x: "2021-07-12T00:00:00Z", y: 128697 }, { x: "2021-07-13T00:00:00Z", y: 128747 }, { x: "2021-07-14T00:00:00Z", y: 128797 }, { x: "2021-07-15T00:00:00Z", y: 128864 }, { x: "2021-07-16T00:00:00Z", y: 128913 }, { x: "2021-07-17T00:00:00Z", y: 128960 }, { x: "2021-07-18T00:00:00Z", y: 128988 }, { x: "2021-07-19T00:00:00Z", y: 129007 }, { x: "2021-07-20T00:00:00Z", y: 129109 }, { x: "2021-07-21T00:00:00Z", y: 129182 }, { x: "2021-07-22T00:00:00Z", y: 129266 }, { x: "2021-07-23T00:00:00Z", y: 129330 }, { x: "2021-07-24T00:00:00Z", y: 129418 }, { x: "2021-07-25T00:00:00Z", y: 129446 }, { x: "2021-07-26T00:00:00Z", y: 129460 }, { x: "2021-07-27T00:00:00Z", y: 129591 }, { x: "2021-07-28T00:00:00Z", y: 129718 }, { x: "2021-07-29T00:00:00Z", y: 129809 }, { x: "2021-07-30T00:00:00Z", y: 129877 }, { x: "2021-07-31T00:00:00Z", y: 129949 }, { x: "2021-08-01T00:00:00Z", y: 130014 }, { x: "2021-08-02T00:00:00Z", y: 130039 }, { x: "2021-08-03T00:00:00Z", y: 130179 }, { x: "2021-08-04T00:00:00Z", y: 130300 }, { x: "2021-08-05T00:00:00Z", y: 130390 }, { x: "2021-08-06T00:00:00Z", y: 130482 }, { x: "2021-08-07T00:00:00Z", y: 130585 }, { x: "2021-08-08T00:00:00Z", y: 130630 }, { x: "2021-08-09T00:00:00Z", y: 130667 }, { x: "2021-08-10T00:00:00Z", y: 130813 }, { x: "2021-08-11T00:00:00Z", y: 130921 }, { x: "2021-08-12T00:00:00Z", y: 131016 }, { x: "2021-08-13T00:00:00Z", y: 131116 }, { x: "2021-08-14T00:00:00Z", y: 131210 }, { x: "2021-08-15T00:00:00Z", y: 131269 }, { x: "2021-08-16T00:00:00Z", y: 131296 }, { x: "2021-08-17T00:00:00Z", y: 131466 }, { x: "2021-08-18T00:00:00Z", y: 131577 }, { x: "2021-08-19T00:00:00Z", y: 131691 }, { x: "2021-08-20T00:00:00Z", y: 131805 }, { x: "2021-08-21T00:00:00Z", y: 131909 }, { x: "2021-08-22T00:00:00Z", y: 131958 }, { x: "2021-08-23T00:00:00Z", y: 132e3 }, { x: "2021-08-24T00:00:00Z", y: 132174 }, { x: "2021-08-25T00:00:00Z", y: 132323 }, { x: "2021-08-26T00:00:00Z", y: 132465 }, { x: "2021-08-27T00:00:00Z", y: 132566 }, { x: "2021-08-28T00:00:00Z", y: 132699 }, { x: "2021-08-29T00:00:00Z", y: 132760 }, { x: "2021-08-30T00:00:00Z", y: 132808 }, { x: "2021-08-31T00:00:00Z", y: 132859 }, { x: "2021-09-01T00:00:00Z", y: 133066 }, { x: "2021-09-02T00:00:00Z", y: 133244 }, { x: "2021-09-03T00:00:00Z", y: 133365 }, { x: "2021-09-04T00:00:00Z", y: 133485 }, { x: "2021-09-05T00:00:00Z", y: 133553 }, { x: "2021-09-06T00:00:00Z", y: 133598 }, { x: "2021-09-07T00:00:00Z", y: 133808 }, { x: "2021-09-08T00:00:00Z", y: 133999 }, { x: "2021-09-09T00:00:00Z", y: 134166 }, { x: "2021-09-10T00:00:00Z", y: 134313 }, { x: "2021-09-11T00:00:00Z", y: 134469 }, { x: "2021-09-12T00:00:00Z", y: 134525 }, { x: "2021-09-13T00:00:00Z", y: 134587 }, { x: "2021-09-14T00:00:00Z", y: 134774 }, { x: "2021-09-15T00:00:00Z", y: 134975 }, { x: "2021-09-16T00:00:00Z", y: 135134 }, { x: "2021-09-17T00:00:00Z", y: 135314 }, { x: "2021-09-18T00:00:00Z", y: 135478 }, { x: "2021-09-19T00:00:00Z", y: 135539 }, { x: "2021-09-20T00:00:00Z", y: 135589 }, { x: "2021-09-21T00:00:00Z", y: 135793 }, { x: "2021-09-22T00:00:00Z", y: 135961 }, { x: "2021-09-23T00:00:00Z", y: 136156 }, { x: "2021-09-24T00:00:00Z", y: 136336 }, { x: "2021-09-25T00:00:00Z", y: 136465 }, { x: "2021-09-26T00:00:00Z", y: 136529 }, { x: "2021-09-27T00:00:00Z", y: 136569 }, { x: "2021-09-28T00:00:00Z", y: 136746 }, { x: "2021-09-29T00:00:00Z", y: 136906 }, { x: "2021-09-30T00:00:00Z", y: 137043 }, { x: "2021-10-01T00:00:00Z", y: 137171 }, { x: "2021-10-02T00:00:00Z", y: 137295 }, { x: "2021-10-03T00:00:00Z", y: 137338 }, { x: "2021-10-04T00:00:00Z", y: 137378 }, { x: "2021-10-05T00:00:00Z", y: 137544 }, { x: "2021-10-06T00:00:00Z", y: 137694 }, { x: "2021-10-07T00:00:00Z", y: 137818 }, { x: "2021-10-08T00:00:00Z", y: 137945 }, { x: "2021-10-09T00:00:00Z", y: 138101 }, { x: "2021-10-10T00:00:00Z", y: 138139 }, { x: "2021-10-11T00:00:00Z", y: 138167 }, { x: "2021-10-12T00:00:00Z", y: 138351 }, { x: "2021-10-13T00:00:00Z", y: 138487 }, { x: "2021-10-14T00:00:00Z", y: 138647 }, { x: "2021-10-15T00:00:00Z", y: 138792 }, { x: "2021-10-16T00:00:00Z", y: 138940 }, { x: "2021-10-17T00:00:00Z", y: 138997 }, { x: "2021-10-18T00:00:00Z", y: 139042 }, { x: "2021-10-19T00:00:00Z", y: 139265 }, { x: "2021-10-20T00:00:00Z", y: 139444 }, { x: "2021-10-21T00:00:00Z", y: 139562 }, { x: "2021-10-22T00:00:00Z", y: 139743 }, { x: "2021-10-23T00:00:00Z", y: 139878 }, { x: "2021-10-24T00:00:00Z", y: 139950 }, { x: "2021-10-25T00:00:00Z", y: 139990 }, { x: "2021-10-26T00:00:00Z", y: 140253 }, { x: "2021-10-27T00:00:00Z", y: 140462 }, { x: "2021-10-28T00:00:00Z", y: 140628 }, { x: "2021-10-29T00:00:00Z", y: 140815 }, { x: "2021-10-30T00:00:00Z", y: 140981 }, { x: "2021-10-31T00:00:00Z", y: 141055 }, { x: "2021-11-01T00:00:00Z", y: 141098 }, { x: "2021-11-02T00:00:00Z", y: 141390 }, { x: "2021-11-03T00:00:00Z", y: 141607 }, { x: "2021-11-04T00:00:00Z", y: 141826 }, { x: "2021-11-05T00:00:00Z", y: 142019 }, { x: "2021-11-06T00:00:00Z", y: 142174 }, { x: "2021-11-07T00:00:00Z", y: 142236 }, { x: "2021-11-08T00:00:00Z", y: 142293 }, { x: "2021-11-09T00:00:00Z", y: 142556 }, { x: "2021-11-10T00:00:00Z", y: 142772 }, { x: "2021-11-11T00:00:00Z", y: 142971 }, { x: "2021-11-12T00:00:00Z", y: 143116 }, { x: "2021-11-13T00:00:00Z", y: 143274 }] }];
+
   // js/app.js
   Chart.register(...registerables);
   var ctx = document.getElementById("chart-cases").getContext("2d");
   var myChart = new Chart(ctx, {
-    type: "bar",
+    type: "line",
     data: {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [{
-        label: "# of Votes",
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(255, 159, 64, 0.2)"
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)"
-        ],
-        borderWidth: 1
-      }]
+      backgroundColor: [
+        "rgba(255, 99, 132, 0.2)",
+        "rgba(54, 162, 235, 0.2)",
+        "rgba(255, 206, 86, 0.2)",
+        "rgba(75, 192, 192, 0.2)",
+        "rgba(153, 102, 255, 0.2)",
+        "rgba(255, 159, 64, 0.2)"
+      ],
+      datasets: results_default
     },
     options: {
       scales: {
+        x: {
+          type: "time",
+          time: {
+            displayFormats: {
+              hour: "YYYY MMM dd HH:mm"
+            }
+          }
+        },
         y: {
           beginAtZero: true
+        }
+      },
+      plugins: {
+        tooltip: {
+          mode: "nearest",
+          intersect: true,
+          callbacks: {
+            title: tooltipTitle
+          }
         }
       }
     }
   });
+  function tooltipTitle(tooltipItems) {
+    return format(new Date(tooltipItems[0].raw.x), "yyyy-MM-dd");
+  }
 })();
 /*!
  * @kurkle/color v0.1.9
@@ -12710,4 +16440,10 @@
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
+ */
+/*!
+ * chartjs-adapter-date-fns v2.0.0
+ * https://www.chartjs.org
+ * (c) 2021 chartjs-adapter-date-fns Contributors
+ * Released under the MIT license
  */

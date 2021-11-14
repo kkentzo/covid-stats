@@ -634,12 +634,12 @@ video {
   margin-right: auto;
 }
 
-.flex {
-  display: flex;
+.grid {
+  display: grid;
 }
 
-.w-1\/3 {
-  width: 33.333333%;
+.w-full {
+  width: 100%;
 }
 
 .px-4 {
